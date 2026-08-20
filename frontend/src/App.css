@@ -9,44 +9,26 @@ body {
   justify-content: center;
 }
 
-/* The "A4 sheet" — a couple of faint rotated sheets sit behind it via
-   ::before/::after, like a fanned stack, and the main sheet settles flat
-   on load. */
+/* A4 sheet, portrait: 210x297mm = 794x1123px at 96dpi. One flat card,
+   no extra layers — min-height keeps the portrait shape even when the
+   form content alone doesn't fill it; it grows past that once results
+   are showing. */
 .matcher {
-  position: relative;
   width: 794px;
   max-width: 100%;
+  min-height: 1123px;
   margin: 0 auto;
   padding: 40px 48px 56px;
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 12px 32px rgba(22, 33, 46, 0.14);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  animation: sheet-settle 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: fade-in 0.3s ease-out;
 }
 
-.matcher::before,
-.matcher::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 8px 20px rgba(22, 33, 46, 0.08);
-  z-index: -1;
-}
-
-.matcher::before {
-  transform: rotate(-3deg) translateY(4px);
-}
-
-.matcher::after {
-  transform: rotate(3deg) translateY(4px);
-}
-
-@keyframes sheet-settle {
-  from { opacity: 0; transform: rotate(-4deg) translateY(-10px) scale(0.97); }
-  to { opacity: 1; transform: rotate(0) translateY(0) scale(1); }
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 h1 {
