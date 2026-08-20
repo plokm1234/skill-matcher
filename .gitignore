@@ -1,0 +1,12 @@
+# Python
+backend/venv/
+backend/**/__pycache__/
+backend/.pytest_cache/
+*.pyc
+
+# Secrets — never commit a real DATABASE_URL
+.env
+backend/.env
+
+# OS
+.DS_Store

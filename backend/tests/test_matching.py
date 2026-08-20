@@ -1,0 +1,154 @@
+from app.matching import extract_description_block, match_skills
+
+SKILLS = {
+    "Java": [],
+    "JavaScript": ["js"],
+    "Python": [],
+    "SQL": ["mysql", "postgresql"],
+    "Machine Learning": [],
+    "REST API": [],
+    "Communication": [],
+    "Troubleshooting": [],
+    "Ticketing System": [],
+    "Complaint Handling": [],
+}
+
+
+def test_word_boundary_avoids_java_javascript_false_positive():
+    matched = match_skills("We need a JavaScript developer with React experience.", SKILLS)
+    assert "JavaScript" in matched
+    assert "Java" not in matched
+
+
+def test_multiword_skill_matches_as_a_whole_phrase():
+    matched = match_skills("Experience with machine learning and REST API design.", SKILLS)
+    assert "Machine Learning" in matched
+    assert "REST API" in matched
+
+
+def test_alias_matches_canonical_skill():
+    matched = match_skills("Comfortable writing PostgreSQL queries.", SKILLS)
+    assert "SQL" in matched
+
+
+# Structural fixtures below mirror the pattern found in real CTgoodjobs and
+# Indeed pastes (Blueprint Sheet 02): a page of navigation / related-listing
+# noise, a "job description" marker, the real content, then an end marker
+# followed by more noise. Text is paraphrased, not copied verbatim from any
+# specific posting.
+
+CTGOODJOBS_LIKE_PASTE = """
+CTgoodjobs.hk
+Company Profiles
+Learning
+Search location
+Full-time  Part-time  Contract
+
+Sigma Elevator (HK) Limited
+電梯助理技工 / 技工
+Kwun Tong
+4 - 9 yr(s)
+14d ago
+
+Otis Elevator Co (HK) Limited
+Registered Lift / Escalator Engineer
+Kowloon Bay
+6 - 11 yr(s)
+14d ago
+
+Jobs Description
+
+Company Overview
+
+Job Highlights
+
+Responsibilities
+
+Handle daily customer enquiries and resolve complaints in a timely manner
+
+Log every request through our ticketing system
+
+Requirements
+
+Strong communication and troubleshooting skills
+
+At least 2 years' experience in a customer-facing role
+
+Apply Now
+
+Similar Jobs
+
+Michael Page
+Customer Service Officer
+1d ago
+
+Mclaren Consultancy Limited
+Engineer / Senior Engineer
+9d ago
+
+Job Seekers
+Find Jobs
+Browse Jobs
+© Copyright 2026 Career Times Online Limited. All rights reserved.
+"""
+
+INDEED_LIKE_PASTE = """
+Skip to main content
+Keyword: all jobs
+customer service jobs in Hong Kong
+
+Company A
+Customer Service Assistant
+Kwai Chung
+Medical Insurance
+
+Company B
+IT Support Officer
+Hong Kong
+Paid time off
+
+Return to Search Result
+
+Full job description
+
+Who We Are
+
+We are a growing team looking for a hands-on Customer Service Assistant.
+
+What You'll Do
+
+Handle complaint handling and troubleshooting for incoming support tickets
+Maintain clear communication with customers via our ticketing system
+
+Application Process
+
+Job Type: Full-time
+Return to Search Result
+
+Career advice
+Browse jobs
+© 2026 Indeed
+"""
+
+
+def test_extract_description_block_strips_ctgoodjobs_style_noise():
+    result = extract_description_block(CTGOODJOBS_LIKE_PASTE)
+    matched = match_skills(result, SKILLS)
+    assert "Communication" in matched
+    assert "Troubleshooting" in matched
+    # related-listing company names should not leak into the extracted block
+    assert "Otis Elevator" not in result
+    assert "Similar Jobs" not in result
+
+
+def test_extract_description_block_strips_indeed_style_noise():
+    result = extract_description_block(INDEED_LIKE_PASTE)
+    matched = match_skills(result, SKILLS)
+    assert "Complaint Handling" in matched
+    assert "Ticketing System" in matched
+    assert "Medical Insurance" not in result
+
+
+def test_extract_description_block_falls_back_to_full_text_without_marker():
+    raw = "Looking for a Python developer with SQL experience."
+    assert extract_description_block(raw) == raw
