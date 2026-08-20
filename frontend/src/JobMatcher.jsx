@@ -17,14 +17,14 @@ const DEMO_EXAMPLES = [
       "We are looking for a Software Developer with strong experience in Python, Git, Data Structures and Algorithms. You will design and maintain backend systems, write clean testable code, and collaborate with cross-functional teams.",
   },
   {
-    key: "cross-high",
-    label: "IT Support Assistant",
+    key: "same-high",
+    label: "IT Support Officer",
     jobText:
       "IT Support Assistant needed to handle daily Troubleshooting and Ticketing System duties. Communication and Complaint Handling skills required when supporting non-technical staff.",
   },
   {
-    key: "same-high",
-    label: "IT Support Officer",
+    key: "cross-high",
+    label: "IT Support Assistant",
     jobText:
       "IT Support Officer needed to provide first-line Troubleshooting, handle Windows/Networking Basics issues, and log all requests through our internal Ticketing System.",
   },
@@ -150,6 +150,14 @@ export default function JobMatcher() {
       <div className="field">
         <label>職位 Title</label>
         <div className="chip-row title-row">
+          <button
+            className="chip chip-disabled"
+            disabled
+            type="button"
+            title="未支援自訂職位title"
+          >
+            自己貼
+          </button>
           {TITLES.map((t) => (
             <button
               key={t}
@@ -160,14 +168,6 @@ export default function JobMatcher() {
               {t}
             </button>
           ))}
-          <button
-            className="chip chip-disabled"
-            disabled
-            type="button"
-            title="未支援自訂職位title"
-          >
-            自己貼
-          </button>
         </div>
       </div>
 

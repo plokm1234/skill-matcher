@@ -44,10 +44,10 @@ def build_suggestion(match_pct: float, same_track: bool) -> str:
                 "呢個屬於轉行(career change),"
                 "預期需要大量時間學習新skill先追得上"
             )
-        return "雖然唔同track,但你已有一定transferable skill,轉行門檻相對低"
+        return "你已有一定transferable skill,轉行門檻相對低"
 
     if match_pct >= 80:
-        return "核心skill已match,值得申請"
+        return "核心skill已match,可以申請"
     if match_pct >= 50:
         return "核心skill已match,補底缺少嗰幾個會更有把握"
     return "缺口較大,建議先加強缺少嘅核心skill"

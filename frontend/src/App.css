@@ -1,5 +1,5 @@
 body {
-  background: #e9f1f5;
+  background: rgb(196, 200, 201);
   min-height: 100vh;
 }
 
@@ -28,9 +28,9 @@ body {
 .matcher {
   position: relative;
   z-index: 0;
-  width: 794px;
+  width: 1123px;
   max-width: 100%;
-  min-height: 1123px;
+  min-height: 794px;
   margin: 0 auto;
 }
 
@@ -39,7 +39,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: #fff;
+  background: #f3f0f0;
   border-radius: 10px;
   box-shadow: 0 8px 20px rgba(22, 33, 46, 0.08);
   transform-origin: bottom left;   /* FAN_CORNER — change to pin elsewhere */
@@ -59,9 +59,9 @@ body {
   position: relative;
   z-index: 3;               /* sheet "3" — flat, no transform, always front */
   width: 100%;
-  min-height: 1123px;
+  min-height: 794px;
   padding: 40px 48px 56px;
-  background: #fff;
+  background: #f3f0f0;
   border-radius: 10px;
   box-shadow: 0 12px 32px rgba(22, 33, 46, 0.14);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -150,7 +150,7 @@ label {
   right: -4px;
   top: 50%;
   height: 2px;
-  background: #c0392b;
+  background: #f09e94;
   transform: rotate(-10deg);
 }
 
@@ -175,6 +175,13 @@ textarea {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  /* display:flex + justify-content:center only centers the label INSIDE
+     the button — it doesn't center the button itself in its parent. That
+     needs the button to be a block with a content-sized width, then
+     margin:auto can center the whole box. */
+  display: block;
+  width: fit-content;
+  margin: 0 auto;
 }
 
 .extract-btn:disabled {
@@ -199,7 +206,7 @@ textarea {
 }
 
 .compare-col h3 {
-  font-size: 11px;
+  font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #666;
