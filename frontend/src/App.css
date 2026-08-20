@@ -37,7 +37,7 @@ body {
 .matcher::before,
 .matcher::after {
   content: "";
-  position: absolute;
+  position: relative;
   inset: 0;
   background: #fff;
   border-radius: 10px;
@@ -47,12 +47,12 @@ body {
 
 .matcher::before {
   z-index: 1;              /* sheet "1" */
-  transform: rotate(-20deg);
-}
+  transform: rotate(-30deg);
+  }
 
 .matcher::after {
   z-index: 2;              /* sheet "2" */
-  transform: rotate(-40deg);
+  transform: rotate(-60deg);
 }
 
 @keyframes fade-in {
