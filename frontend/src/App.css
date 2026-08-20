@@ -42,17 +42,17 @@ body {
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 8px 20px rgba(22, 33, 46, 0.08);
-  transform-origin: top left;   /* FAN_CORNER — change to pin elsewhere */
+  transform-origin: bottom left;   /* FAN_CORNER — change to pin elsewhere */
 }
 
 .matcher::before {
   z-index: 1;              /* sheet "1" */
-  transform: rotate(-5deg);
+  transform: rotate(-20deg);
 }
 
 .matcher::after {
   z-index: 2;              /* sheet "2" */
-  transform: rotate(-10deg);
+  transform: rotate(-40deg);
 }
 
 @keyframes fade-in {
