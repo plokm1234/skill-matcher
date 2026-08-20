@@ -11,17 +11,27 @@ body {
 
 /* A4 sheet, portrait: 210x297mm = 794x1123px at 96dpi. Three independently
    controlled sheets, numbered back-to-front:
-     1 = .matcher::before  (z-index 1, furthest back)
-     2 = .matcher::after   (z-index 2, middle)
-     3 = .matcher itself   (z-index 3, front — always flat, always on top)
-   z-index is explicit on all three rather than relying on the CSS tie-break
-   rule for equal z-index (::after paints over ::before by DOM order) —
-   that rule is what put sheet 2 above sheet 1 before this was pinned down,
-   easy to get backwards. Tune sheet 1/2's rotate() below; sheet 3 (the
-   real form content) has no transform at all, so it can't rotate. */
+     1 = .matcher::before  (z-index -2, furthest back)
+     2 = .matcher::after   (z-index -1, middle)
+     3 = .matcher's real content (h1, buttons, etc.) — front, always on top
+
+   Sheets 1/2 MUST use negative z-index, not positive. z-index only ranks
+   an element against its stacking-context SIBLINGS — .matcher's own
+   z-index (below) says how .matcher-as-a-whole ranks against elements
+   outside it; it says nothing about how .matcher's pseudo-elements rank
+   against .matcher's own children. Positive z-index puts a pseudo-element
+   in the "positive z-index descendants" paint layer, which is ABOVE the
+   plain "normal in-flow content" layer that h1/buttons/text sit in — so
+   sheets 1/2 painted over all of .matcher's real content no matter what
+   z-index .matcher itself had. Negative z-index puts them in the layer
+   BELOW normal in-flow content instead, which is what's actually wanted.
+   (This is also why .matcher needs an explicit z-index at all: without
+   one, position:relative alone doesn't open a stacking context, and the
+   negative-z-index sheets fall behind the whole page instead of just
+   behind .matcher's own content.) */
 .matcher {
   position: relative;
-  z-index: 3;
+  z-index: 0;
   width: 794px;
   max-width: 100%;
   min-height: 1123px;
@@ -50,14 +60,15 @@ body {
 }
 
 .matcher::before {
-  z-index: 1;              /* sheet "1" */
+  z-index: -2;              /* sheet "1" */
   transform: rotate(-1.5deg);
-  }
+}
 
 .matcher::after {
-  z-index: 2;              /* sheet "2" */
+  z-index: -1;              /* sheet "2" */
   transform: rotate(-3deg);
 }
+
 
 h1 {
   font-size: 22px;
