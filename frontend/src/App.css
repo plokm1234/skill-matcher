@@ -57,7 +57,7 @@ body {
   border-radius: 10px;
   box-shadow: 0 8px 20px rgba(22, 33, 46, 0.5);
   transform-origin: bottom left;   /* FAN_CORNER — change to pin elsewhere */
-  transform: rotate(-4deg);
+  transform: rotate(-4.5deg);
 }
 
 .sheet {
@@ -87,7 +87,7 @@ body {
   position: absolute;
   inset: 0;
   z-index: 2;
-  transform: rotate(-2deg);
+  transform: rotate(-2.5deg);
   pointer-events: none;
   overflow: hidden;
 }
@@ -114,7 +114,7 @@ body {
   box-shadow: 0 8px 20px rgba(22, 33, 46, 0.5);
   background: #eeece7;
   transform-origin: bottom left;
-  transform: rotate(-2deg);
+  transform: rotate(-2.5deg);
 }
 
 .page-flip-sheet-label {
