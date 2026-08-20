@@ -9,26 +9,22 @@ body {
   justify-content: center;
 }
 
-/* A4 sheet, portrait: 210x297mm = 794x1123px at 96dpi. Three independently
-   controlled sheets, numbered back-to-front:
-     1 = .matcher::before  (z-index -2, furthest back)
-     2 = .matcher::after   (z-index -1, middle)
-     3 = .matcher's real content (h1, buttons, etc.) — front, always on top
+/* A4 sheet, portrait: 210x297mm = 794x1123px at 96dpi. Four explicit
+   layers, back-to-front:
+     1 = .matcher::before   (z-index 1, furthest back — a rotated sheet)
+     2 = .matcher::after    (z-index 2, next — a rotated sheet)
+     3 = .matcher-sheet     (z-index 3, the flat 0deg card — no transform)
+     4 = .matcher-sheet's content (h1, buttons, text) — normal flow inside
+         it, so it's always on top of layer 3 automatically
 
-   Sheets 1/2 MUST use negative z-index, not positive. z-index only ranks
-   an element against its stacking-context SIBLINGS — .matcher's own
-   z-index (below) says how .matcher-as-a-whole ranks against elements
-   outside it; it says nothing about how .matcher's pseudo-elements rank
-   against .matcher's own children. Positive z-index puts a pseudo-element
-   in the "positive z-index descendants" paint layer, which is ABOVE the
-   plain "normal in-flow content" layer that h1/buttons/text sit in — so
-   sheets 1/2 painted over all of .matcher's real content no matter what
-   z-index .matcher itself had. Negative z-index puts them in the layer
-   BELOW normal in-flow content instead, which is what's actually wanted.
-   (This is also why .matcher needs an explicit z-index at all: without
-   one, position:relative alone doesn't open a stacking context, and the
-   negative-z-index sheets fall behind the whole page instead of just
-   behind .matcher's own content.) */
+   .matcher itself carries no background of its own on purpose. An
+   element's own background paints BEFORE (below) its children — including
+   negative-z-index children — so if .matcher held the "flat sheet" look
+   itself, layers 1/2 would end up painted between the flat sheet and the
+   text instead of behind everything, even at negative z-index. Splitting
+   the flat sheet into its own real element (.matcher-sheet) with a plain
+   positive z-index above 1/2 avoids relying on that implicit ordering
+   rule at all — the four layers are each a real, explicitly ordered box. */
 .matcher {
   position: relative;
   z-index: 0;
@@ -36,16 +32,6 @@ body {
   max-width: 100%;
   min-height: 1123px;
   margin: 0 auto;
-  padding: 40px 48px 56px;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 12px 32px rgba(22, 33, 46, 0.14);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  /* No entrance animation here on purpose — this card holds every piece of
-     interactive content. An animation that never completes (backgrounded
-     tab, browser throttling, anything) would leave the whole page invisible
-     at opacity:0 with no way to recover. Content visibility must not
-     depend on an animation finishing. */
 }
 
 .matcher::before,
@@ -60,13 +46,30 @@ body {
 }
 
 .matcher::before {
-  z-index: -2;              /* sheet "1" */
+  z-index: 1;              /* sheet "1" */
   transform: rotate(-1.5deg);
 }
 
 .matcher::after {
-  z-index: -1;              /* sheet "2" */
+  z-index: 2;              /* sheet "2" */
   transform: rotate(-3deg);
+}
+
+.matcher-sheet {
+  position: relative;
+  z-index: 3;               /* sheet "3" — flat, no transform, always front */
+  width: 100%;
+  min-height: 1123px;
+  padding: 40px 48px 56px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(22, 33, 46, 0.14);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* No entrance animation here on purpose — this card holds every piece of
+     interactive content. An animation that never completes (backgrounded
+     tab, browser throttling, anything) would leave the whole page invisible
+     at opacity:0 with no way to recover. Content visibility must not
+     depend on an animation finishing. */
 }
 
 

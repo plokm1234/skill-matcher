@@ -144,6 +144,7 @@ export default function JobMatcher() {
 
   return (
     <div className="matcher">
+      <div className="matcher-sheet">
       <h1>Skill Matcher</h1>
 
       <div className="field">
@@ -241,6 +242,7 @@ export default function JobMatcher() {
           <p className="suggestion">建議: {result.suggestion}</p>
         </div>
       )}
+      </div>
     </div>
   );
 }
