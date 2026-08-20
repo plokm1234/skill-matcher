@@ -12,7 +12,10 @@ app.add_middleware(
     CORSMiddleware,
     # GitHub Pages origin — see Blueprint Sheet 03 for why this boundary
     # exists (frontend and API are on different origins by design).
-    allow_origins=["*"],  # tighten to the Pages origin once it's deployed
+    allow_origins=[
+        "https://plokm1234.github.io",
+        "http://localhost:5173",  # local frontend dev
+    ],
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
