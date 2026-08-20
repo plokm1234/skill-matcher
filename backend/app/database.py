@@ -3,6 +3,10 @@ from contextlib import contextmanager
 
 import psycopg2
 import psycopg2.extras
+from dotenv import load_dotenv
+
+load_dotenv()  # reads backend/.env locally; no-op in prod where the
+                # platform (Render) injects DATABASE_URL directly
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
