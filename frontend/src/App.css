@@ -31,33 +31,32 @@ body {
   border-radius: 10px;
   box-shadow: 0 12px 32px rgba(22, 33, 46, 0.14);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  animation: fade-in 0.3s ease-out;
+  /* No entrance animation here on purpose — this card holds every piece of
+     interactive content. An animation that never completes (backgrounded
+     tab, browser throttling, anything) would leave the whole page invisible
+     at opacity:0 with no way to recover. Content visibility must not
+     depend on an animation finishing. */
 }
 
 .matcher::before,
 .matcher::after {
   content: "";
-  position: relative;
+  position: absolute;
   inset: 0;
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 8px 20px rgba(22, 33, 46, 0.08);
-  transform-origin: bottom left;   /* FAN_CORNER — change to pin elsewhere */
+  transform-origin: bottom right;   /* FAN_CORNER — change to pin elsewhere */
 }
 
 .matcher::before {
   z-index: 1;              /* sheet "1" */
-  transform: rotate(-30deg);
+  transform: rotate(-1.5deg);
   }
 
 .matcher::after {
   z-index: 2;              /* sheet "2" */
-  transform: rotate(-60deg);
-}
-
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+  transform: rotate(-3deg);
 }
 
 h1 {
@@ -240,7 +239,7 @@ textarea {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .matcher, textarea, .compare-col .revealed, .result {
+  textarea, .compare-col .revealed, .result {
     animation: none;
   }
 }
