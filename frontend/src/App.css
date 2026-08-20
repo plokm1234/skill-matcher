@@ -47,12 +47,12 @@ body {
 
 .matcher::before {
   z-index: 1;              /* sheet "1" */
-  transform: rotate(-4deg);
+  transform: rotate(-2deg);
 }
 
 .matcher::after {
   z-index: 2;              /* sheet "2" */
-  transform: rotate(-2deg);
+  transform: rotate(-1deg);
 }
 
 .matcher-sheet {
@@ -76,6 +76,7 @@ body {
 h1 {
   font-size: 22px;
   margin-bottom: 24px;
+  text-align: center;
 }
 
 .field {
@@ -100,7 +101,7 @@ label {
 /* Title has few, short options — spread them across the full row
    instead of leaving them clumped on the left. */
 .title-row {
-  justify-content: space-around;
+  justify-content: space-between;
 }
 
 /* Job Description has more, longer options — smaller font/padding so
@@ -220,9 +221,8 @@ textarea {
 }
 
 .compare-col .skill-chip {
-  font-family: "SFMono-Regular", Menlo, monospace;
-  font-size: 11.5px;
-  padding: 4px 9px;
+  font-size: 13px;
+  padding: 7px 14px;
   border-radius: 999px;
   border: 1px solid #e0e0e0;
   background: #f7f9fa;
