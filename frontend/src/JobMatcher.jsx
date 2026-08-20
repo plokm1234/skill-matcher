@@ -12,31 +12,31 @@ const TITLES = ["文員", "客戶服務助理", "IT Support", "行政經理", "I
 const DEMO_EXAMPLES = [
   {
     key: "cross-low",
-    label: "跨track · 低分",
+    label: "Software Developer",
     jobText:
       "We are looking for a Software Developer with strong experience in Python, Git, Data Structures and Algorithms. You will design and maintain backend systems, write clean testable code, and collaborate with cross-functional teams.",
   },
   {
     key: "cross-high",
-    label: "跨track · 高分",
+    label: "IT Support Assistant",
     jobText:
       "IT Support Assistant needed to handle daily Troubleshooting and Ticketing System duties. Communication and Complaint Handling skills required when supporting non-technical staff.",
   },
   {
     key: "same-high",
-    label: "同track · 高match",
+    label: "IT Support Officer",
     jobText:
       "IT Support Officer needed to provide first-line Troubleshooting, handle Windows/Networking Basics issues, and log all requests through our internal Ticketing System.",
   },
   {
     key: "same-mid",
-    label: "同track · 中match",
+    label: "Admin Officer",
     jobText:
       "Admin Officer required to handle daily Data Entry and office Filing, while also taking on Team Supervision and Vendor Coordination responsibilities.",
   },
   {
     key: "same-low",
-    label: "同track · 低match",
+    label: "Administration Manager",
     jobText:
       "Administration Manager responsible for Department Budget Management, Policy Development, and Cross-dept Coordination across the organization.",
   },

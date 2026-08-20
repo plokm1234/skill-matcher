@@ -9,11 +9,16 @@ body {
   justify-content: center;
 }
 
-/* A4 sheet, portrait: 210x297mm = 794x1123px at 96dpi. One flat card,
-   no extra layers — min-height keeps the portrait shape even when the
-   form content alone doesn't fill it; it grows past that once results
-   are showing. */
+/* A4 sheet, portrait: 210x297mm = 794x1123px at 96dpi. Two decorative
+   sheets fan out behind the main one from a fixed corner — tune FAN_CORNER
+   (matches transform-origin below) and the two rotate() angles to adjust
+   which corner it's pinned to and how far it spreads. The front sheet
+   (.matcher itself) stays flat/unrotated so the actual form is readable. */
 .matcher {
+  position: relative;
+  z-index: 0;   /* without an explicit value, position:relative alone
+                   doesn't create a stacking context, and the fan sheets'
+                   z-index:-1 falls all the way behind the page instead */
   width: 794px;
   max-width: 100%;
   min-height: 1123px;
@@ -24,6 +29,26 @@ body {
   box-shadow: 0 12px 32px rgba(22, 33, 46, 0.14);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   animation: fade-in 0.3s ease-out;
+}
+
+.matcher::before,
+.matcher::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(22, 33, 46, 0.08);
+  transform-origin: bottom left;   /* FAN_CORNER — change to pin elsewhere */
+  z-index: -1;
+}
+
+.matcher::before {
+  transform: rotate(-4deg);
+}
+
+.matcher::after {
+  transform: rotate(-8deg);
 }
 
 @keyframes fade-in {
