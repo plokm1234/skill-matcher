@@ -9,16 +9,19 @@ body {
   justify-content: center;
 }
 
-/* A4 sheet, portrait: 210x297mm = 794x1123px at 96dpi. Two decorative
-   sheets fan out behind the main one from a fixed corner — tune FAN_CORNER
-   (matches transform-origin below) and the two rotate() angles to adjust
-   which corner it's pinned to and how far it spreads. The front sheet
-   (.matcher itself) stays flat/unrotated so the actual form is readable. */
+/* A4 sheet, portrait: 210x297mm = 794x1123px at 96dpi. Three independently
+   controlled sheets, numbered back-to-front:
+     1 = .matcher::before  (z-index 1, furthest back)
+     2 = .matcher::after   (z-index 2, middle)
+     3 = .matcher itself   (z-index 3, front — always flat, always on top)
+   z-index is explicit on all three rather than relying on the CSS tie-break
+   rule for equal z-index (::after paints over ::before by DOM order) —
+   that rule is what put sheet 2 above sheet 1 before this was pinned down,
+   easy to get backwards. Tune sheet 1/2's rotate() below; sheet 3 (the
+   real form content) has no transform at all, so it can't rotate. */
 .matcher {
   position: relative;
-  z-index: 0;   /* without an explicit value, position:relative alone
-                   doesn't create a stacking context, and the fan sheets'
-                   z-index:-1 falls all the way behind the page instead */
+  z-index: 3;
   width: 794px;
   max-width: 100%;
   min-height: 1123px;
@@ -39,16 +42,17 @@ body {
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 8px 20px rgba(22, 33, 46, 0.08);
-  transform-origin: top right;   /* FAN_CORNER — change to pin elsewhere */
-  z-index: -1;
+  transform-origin: top left;   /* FAN_CORNER — change to pin elsewhere */
 }
 
 .matcher::before {
-  transform: rotate(-4deg);
+  z-index: 1;              /* sheet "1" */
+  transform: rotate(-5deg);
 }
 
 .matcher::after {
-  transform: rotate(-6deg);
+  z-index: 2;              /* sheet "2" */
+  transform: rotate(-10deg);
 }
 
 @keyframes fade-in {
@@ -67,9 +71,9 @@ h1 {
 
 label {
   display: block;
-  font-size: 12px;
+  font-size: 16px;
   color: #666;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -83,7 +87,7 @@ label {
 /* Title has few, short options — spread them across the full row
    instead of leaving them clumped on the left. */
 .title-row {
-  justify-content: space-between;
+  justify-content: space-around;
 }
 
 /* Job Description has more, longer options — smaller font/padding so
@@ -94,7 +98,7 @@ label {
 }
 
 .job-row .chip {
-  font-size: 12px;
+  font-size: 14px;
   padding: 6px 10px;
   white-space: nowrap;
 }
