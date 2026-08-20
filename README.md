@@ -1,5 +1,7 @@
 # Skill Matcher
 
+![Tests](https://github.com/plokm1234/skill-matcher/actions/workflows/test.yml/badge.svg)
+
 Part of the Career GPS series. Paste a job description, pick a job title, and
 see how your skills match — with a rule-based suggestion, not a guess.
 
