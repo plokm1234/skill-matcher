@@ -61,7 +61,6 @@ export default function JobMatcher() {
   const [requiredSkills, setRequiredSkills] = useState([]);
 
   const [result, setResult] = useState(null);
-  const [comparisonItems, setComparisonItems] = useState([]);
   const [revealIndex, setRevealIndex] = useState(0);
   const [showSummary, setShowSummary] = useState(false);
 
@@ -95,7 +94,6 @@ export default function JobMatcher() {
   function pickJobOption(opt) {
     setJobOption(opt.key);
     setResult(null);
-    setComparisonItems([]);
     setShowSummary(false);
     if (opt.key === "manual") {
       setJobText("");
@@ -109,6 +107,7 @@ export default function JobMatcher() {
   async function handleExtract() {
     setLoading(true);
     setError(null);
+    setResult(null);
     setShowSummary(false);
     try {
       const d = await getJson(`${API_BASE}/extract`, {
@@ -117,9 +116,6 @@ export default function JobMatcher() {
         body: JSON.stringify({ title, job_text: jobText }),
       });
       setResult(d);
-      const matchedSet = new Set(d.matched);
-      const base = requiredSkills.length ? requiredSkills : [...d.matched, ...d.gap];
-      setComparisonItems(base.map((skill) => ({ skill, isMatch: matchedSet.has(skill) })));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -127,15 +123,16 @@ export default function JobMatcher() {
     }
   }
 
-  // Staggered reveal: tick/cross appear one at a time, then the centered
-  // match%/suggestion summary fades in below.
+  // Extract doesn't create the skill chips — they're already on screen the
+  // moment title/job description are picked. It only flips each one's CSS
+  // state from "pending" to tick/cross, one at a time.
   useEffect(() => {
-    if (!comparisonItems.length) return;
+    if (!result) return;
     setRevealIndex(0);
     const timer = setInterval(() => {
       setRevealIndex((i) => {
         const next = i + 1;
-        if (next >= comparisonItems.length) {
+        if (next >= requiredSkills.length) {
           clearInterval(timer);
           setTimeout(() => setShowSummary(true), 400);
         }
@@ -143,7 +140,7 @@ export default function JobMatcher() {
       });
     }, 220);
     return () => clearInterval(timer);
-  }, [comparisonItems]);
+  }, [result]);
 
   return (
     <div className="matcher">
@@ -163,9 +160,6 @@ export default function JobMatcher() {
             </button>
           ))}
         </div>
-        {titleSkills.length > 0 && (
-          <p className="skill-preview">你嘅Skills: {titleSkills.join(" · ")}</p>
-        )}
       </div>
 
       <div className="field">
@@ -193,10 +187,6 @@ export default function JobMatcher() {
             onBlur={(e) => previewRequiredSkills(e.target.value)}
           />
         )}
-
-        {requiredSkills.length > 0 && (
-          <p className="skill-preview">呢份Job要求: {requiredSkills.join(" · ")}</p>
-        )}
       </div>
 
       <button
@@ -210,7 +200,7 @@ export default function JobMatcher() {
 
       {error && <p className="error">{error}</p>}
 
-      {comparisonItems.length > 0 && (
+      {(titleSkills.length > 0 || requiredSkills.length > 0) && (
         <div className="compare">
           <div className="compare-col">
             <h3>你嘅Skills</h3>
@@ -223,13 +213,20 @@ export default function JobMatcher() {
           <div className="compare-col">
             <h3>呢份Job要求嘅Skills</h3>
             <div className="chip-list">
-              {comparisonItems.map((item, i) => {
+              {requiredSkills.map((skill, i) => {
+                // Before Extract runs, result is null and every chip just
+                // sits in the plain "pending" state — Extract's only job
+                // is to flip this classification on, one chip at a time.
+                if (!result) {
+                  return <span key={skill} className="skill-chip pending">{skill}</span>;
+                }
                 const revealed = i < revealIndex;
-                const cls = revealed ? `revealed ${item.isMatch ? "is-match" : "is-gap"}` : "pending";
+                const isMatch = result.matched.includes(skill);
+                const cls = revealed ? `revealed ${isMatch ? "is-match" : "is-gap"}` : "pending";
                 return (
-                  <span key={item.skill} className={`skill-chip ${cls}`}>
-                    {item.skill}
-                    {revealed && (item.isMatch ? " ✓" : " ✕")}
+                  <span key={skill} className={`skill-chip ${cls}`}>
+                    {skill}
+                    {revealed && (isMatch ? " ✓" : " ✕")}
                   </span>
                 );
               })}
