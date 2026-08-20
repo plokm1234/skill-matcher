@@ -80,6 +80,25 @@ label {
   flex-wrap: wrap;
 }
 
+/* Title has few, short options — spread them across the full row
+   instead of leaving them clumped on the left. */
+.title-row {
+  justify-content: space-between;
+}
+
+/* Job Description has more, longer options — smaller font/padding so
+   all 6 stay on one line instead of wrapping. Tune font-size here if
+   labels change length. */
+.job-row {
+  flex-wrap: nowrap;
+}
+
+.job-row .chip {
+  font-size: 12px;
+  padding: 6px 10px;
+  white-space: nowrap;
+}
+
 .chip {
   font-size: 13px;
   padding: 7px 14px;

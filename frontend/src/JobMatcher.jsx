@@ -148,7 +148,7 @@ export default function JobMatcher() {
 
       <div className="field">
         <label>職位 Title</label>
-        <div className="chip-row">
+        <div className="chip-row title-row">
           {TITLES.map((t) => (
             <button
               key={t}
@@ -164,7 +164,7 @@ export default function JobMatcher() {
 
       <div className="field">
         <label>Job Description</label>
-        <div className="chip-row">
+        <div className="chip-row job-row">
           {JOB_OPTIONS.map((opt) => (
             <button
               key={opt.key}
