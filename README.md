@@ -2,6 +2,8 @@
 
 ![Tests](https://github.com/plokm1234/skill-matcher/actions/workflows/test.yml/badge.svg)
 
+Paste a job description, pick a job title, and see how your skills match.
+
 **Live demo:** https://plokm1234.github.io/skill-matcher/
 
 ## Known limitations
@@ -11,11 +13,6 @@
 
 - The noise-stripping heuristic (`extract_description_block`) is marker-based, not a full HTML parser — it can miss the description block on job boards that don't use a "job description" style header.
 - Matching is exact-phrase, not semantic — a job ad has to use the same wording as the skill dictionary (or a listed alias) to be detected.
-
-Paste a job description, pick a job title, and see how your skills match.
-
-Full design rationale, decision log, and architecture diagrams: see the
-[Skill Matcher Blueprint](https://claude.ai/code/artifact/06d5895c-b15d-4bc9-b191-91fb1a7c9e76).
 
 ## Architecture
 
