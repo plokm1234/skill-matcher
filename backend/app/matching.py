@@ -42,10 +42,21 @@ def match_skills(text: str, skills: dict[str, list[str]]) -> list[str]:
     """Find which skills are mentioned in `text`.
 
     Walks the skill dictionary outward into the text (not the reverse),
-    using a word-boundary regex per skill/alias — this is what lets a
+    using a boundary-aware regex per skill/alias — this is what lets a
     multi-word skill like "machine learning" match as a whole phrase
     without any tokenization or n-gram bookkeeping. See Blueprint Sheet 04
     for why this direction was chosen over token-first hashing.
+
+    Uses lookaround assertions instead of \\b. Python's \\b treats every
+    Han character as a \\w character, so it never fires inside a run of
+    Chinese text OR between a Latin term and adjacent Chinese text —
+    "話" next to "及" in "廣東話及普通話" has no boundary, and neither
+    does "x" next to "同" in "linux同mysql" (a completely ordinary way to
+    write it in a bilingual HK job ad, no space needed). The lookarounds
+    below only care whether a LATIN letter/digit is directly adjacent —
+    which still blocks "java" from matching inside "javascript" (adjacent
+    "s" is a Latin letter) — while treating any CJK-adjacent position as
+    a valid boundary either way.
 
     `skills` maps a canonical skill name to its list of aliases
     (the canonical name itself does not need to be repeated in the list).
@@ -55,7 +66,7 @@ def match_skills(text: str, skills: dict[str, list[str]]) -> list[str]:
     for canonical, aliases in skills.items():
         candidates = [canonical, *aliases]
         for term in candidates:
-            pattern = r"\b" + re.escape(term.lower()) + r"\b"
+            pattern = r"(?<![A-Za-z0-9])" + re.escape(term.lower()) + r"(?![A-Za-z0-9])"
             if re.search(pattern, lowered):
                 matched.append(canonical)
                 break

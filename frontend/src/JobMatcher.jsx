@@ -147,7 +147,7 @@ export default function JobMatcher() {
       <div className="matcher-sheet">
       <h1>Skill Matcher</h1>
       <p className="notice">
-        Demo跑喺免費伺服器,載入可能要等耐少少。
+        Demo使用免費伺服器,載入可能要等耐少少。
       </p>
 
       <div className="field">

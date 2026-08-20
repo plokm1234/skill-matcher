@@ -1,5 +1,5 @@
 body {
-  background: rgb(196, 200, 201);
+  background: #bfc5c7;
   min-height: 100vh;
 }
 
@@ -39,9 +39,9 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: #f3f0f0;
+  background: #dfe1df;
   border-radius: 10px;
-  box-shadow: 0 8px 20px rgba(22, 33, 46, 0.08);
+  box-shadow: 0 8px 20px rgba(22, 33, 46, 0.5);
   transform-origin: bottom left;   /* FAN_CORNER — change to pin elsewhere */
 }
 
@@ -61,7 +61,7 @@ body {
   width: 100%;
   min-height: 794px;
   padding: 40px 48px 56px;
-  background: #f3f0f0;
+  background: #eeece7;
   border-radius: 10px;
   box-shadow: 0 12px 32px rgba(22, 33, 46, 0.14);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -103,6 +103,7 @@ label {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 /* Title has few, short options — spread them across the full row

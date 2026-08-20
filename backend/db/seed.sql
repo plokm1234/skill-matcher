@@ -40,7 +40,33 @@ INSERT INTO skills (name, category) VALUES
     ('Python', 'Software Dev'),
     ('Git', 'Software Dev'),
     ('Data Structures', 'Software Dev'),
-    ('Algorithms', 'Software Dev');
+    ('Algorithms', 'Software Dev'),
+
+    -- Added from real-data analysis: 60 JobsDB IT job ads (2 pages), a
+    -- curated ~60-term candidate list checked against actual frequency,
+    -- keeping only what genuinely appeared. See backend/scripts/analyze_job_ads.py.
+    -- Tagged 'IT' because the source dataset is IT-only — English/Mandarin/
+    -- Cantonese in particular aren't really IT-exclusive skills in real
+    -- life, so this tagging is a scope simplification tied to where the
+    -- frequency data came from, not a claim that these only matter for IT.
+    ('English', 'IT'),                -- 70% of ads (42/60)
+    ('Mandarin', 'IT'),                -- 33% (20/60)
+    ('Cantonese', 'IT'),               -- 28% (17/60)
+    ('Linux', 'IT'),                   -- 23% (14/60)
+    ('Cybersecurity', 'IT'),           -- 17% (10/60)
+    ('Windows Server', 'IT'),          -- 17% (10/60)
+    ('SQL', 'IT'),                     -- 15% (9/60)
+    ('Azure', 'IT');                   -- 13% (8/60)
+
+INSERT INTO skill_aliases (skill_id, alias)
+SELECT s.skill_id, a.alias FROM skills s
+JOIN (VALUES
+    ('Mandarin', '普通話'), ('Mandarin', 'Putonghua'),
+    ('Cantonese', '廣東話'), ('Cantonese', 'Canto'),
+    ('Cybersecurity', 'Cyber Security'), ('Cybersecurity', 'Information Security'),
+    ('SQL', 'MySQL'), ('SQL', 'PostgreSQL'), ('SQL', 'SQL Server'), ('SQL', 'MSSQL'),
+    ('Azure', 'Microsoft Azure')
+) AS a(skill_name, alias) ON s.name = a.skill_name;
 
 INSERT INTO job_titles (title_name, track, level) VALUES
     ('文員', '文員', 'Junior'),

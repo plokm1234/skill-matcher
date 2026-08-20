@@ -31,6 +31,30 @@ def test_alias_matches_canonical_skill():
     assert "SQL" in matched
 
 
+def test_non_latin_alias_matches():
+    # Added after the real-JobsDB-data analysis (backend/scripts/analyze_job_ads.py)
+    # surfaced how common Chinese-language requirements are in real IT job
+    # ads (English 70%, Mandarin 33%, Cantonese 28% of 60 real postings) —
+    # aliases aren't just for alternate English spellings.
+    skills = {"Cantonese": ["廣東話", "canto"], "Mandarin": ["普通話", "putonghua"]}
+    matched = match_skills("流利廣東話及普通話,良好英語會話能力", skills)
+    assert "Cantonese" in matched
+    assert "Mandarin" in matched
+
+
+def test_latin_term_matches_with_no_space_before_cjk_text():
+    # Same root cause, other direction: an English term directly butted up
+    # against Chinese text with no space ("linux同mysql,java開發") is
+    # completely normal in bilingual HK job ads, but \b doesn't fire at a
+    # Latin/CJK boundary either — "x" next to "同" looks like no boundary
+    # at all to Python's \w-based \b.
+    skills = {"Linux": [], "Java": [], "JavaScript": ["js"]}
+    matched = match_skills("需要熟悉linux同javascript開發經驗", skills)
+    assert "Linux" in matched
+    assert "JavaScript" in matched
+    assert "Java" not in matched  # still shouldn't match inside "javascript"
+
+
 # Structural fixtures below mirror the pattern found in real CTgoodjobs and
 # Indeed pastes (Blueprint Sheet 02): a page of navigation / related-listing
 # noise, a "job description" marker, the real content, then an end marker
