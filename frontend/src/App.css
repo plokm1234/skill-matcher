@@ -42,17 +42,17 @@ body {
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 8px 20px rgba(22, 33, 46, 0.08);
-  transform-origin: bottom right;   /* FAN_CORNER — change to pin elsewhere */
+  transform-origin: bottom left;   /* FAN_CORNER — change to pin elsewhere */
 }
 
 .matcher::before {
   z-index: 1;              /* sheet "1" */
-  transform: rotate(-1.5deg);
+  transform: rotate(-4deg);
 }
 
 .matcher::after {
   z-index: 2;              /* sheet "2" */
-  transform: rotate(-3deg);
+  transform: rotate(-2deg);
 }
 
 .matcher-sheet {
@@ -129,6 +129,29 @@ label {
   background: #1f6fa8;
   color: #fff;
   border-color: #1f6fa8;
+}
+
+/* Permanently disabled — shown so people see it's a planned option,
+   not so they can pick it. The red line is the "not usable" signal;
+   :disabled handles the actual click-blocking. */
+.chip-disabled {
+  position: relative;
+  color: #aaa;
+  background: #f2f2f2;
+  border-color: #e2e2e2;
+  cursor: not-allowed;
+  overflow: hidden;
+}
+
+.chip-disabled::after {
+  content: "";
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  top: 50%;
+  height: 2px;
+  background: #c0392b;
+  transform: rotate(-10deg);
 }
 
 textarea {

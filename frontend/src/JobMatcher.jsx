@@ -160,6 +160,14 @@ export default function JobMatcher() {
               {t}
             </button>
           ))}
+          <button
+            className="chip chip-disabled"
+            disabled
+            type="button"
+            title="未支援自訂職位title"
+          >
+            自己貼
+          </button>
         </div>
       </div>
 
