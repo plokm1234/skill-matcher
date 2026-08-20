@@ -75,8 +75,15 @@ body {
 
 h1 {
   font-size: 22px;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
   text-align: center;
+}
+
+.notice {
+  font-size: 12.5px;
+  color: #a85f17;
+  text-align: center;
+  margin: 0 0 24px;
 }
 
 .field {
