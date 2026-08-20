@@ -2,7 +2,11 @@ import JobMatcher from "./JobMatcher";
 import "./App.css";
 
 function App() {
-  return <JobMatcher />;
+  return (
+    <div className="page">
+      <JobMatcher />
+    </div>
+  );
 }
 
 export default App;

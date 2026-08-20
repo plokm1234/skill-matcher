@@ -7,28 +7,35 @@ const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 const TITLES = ["文員", "客戶服務助理", "IT Support", "行政經理", "IT Manager"];
 
 // Self-authored, not scraped — see Blueprint Sheet 02 for why.
+// Each needs its own `key` — without one, every demo chip fell back to the
+// same `undefined` and all 5 lit up together once any one was picked.
 const DEMO_EXAMPLES = [
   {
+    key: "cross-low",
     label: "跨track · 低分",
     jobText:
       "We are looking for a Software Developer with strong experience in Python, Git, Data Structures and Algorithms. You will design and maintain backend systems, write clean testable code, and collaborate with cross-functional teams.",
   },
   {
+    key: "cross-high",
     label: "跨track · 高分",
     jobText:
       "IT Support Assistant needed to handle daily Troubleshooting and Ticketing System duties. Communication and Complaint Handling skills required when supporting non-technical staff.",
   },
   {
+    key: "same-high",
     label: "同track · 高match",
     jobText:
       "IT Support Officer needed to provide first-line Troubleshooting, handle Windows/Networking Basics issues, and log all requests through our internal Ticketing System.",
   },
   {
+    key: "same-mid",
     label: "同track · 中match",
     jobText:
       "Admin Officer required to handle daily Data Entry and office Filing, while also taking on Team Supervision and Vendor Coordination responsibilities.",
   },
   {
+    key: "same-low",
     label: "同track · 低match",
     jobText:
       "Administration Manager responsible for Department Budget Management, Policy Development, and Cross-dept Coordination across the organization.",
@@ -207,22 +214,26 @@ export default function JobMatcher() {
         <div className="compare">
           <div className="compare-col">
             <h3>你嘅Skills</h3>
-            {titleSkills.map((s) => (
-              <p key={s}>{s}</p>
-            ))}
+            <div className="chip-list">
+              {titleSkills.map((s) => (
+                <span key={s} className="skill-chip">{s}</span>
+              ))}
+            </div>
           </div>
           <div className="compare-col">
             <h3>呢份Job要求嘅Skills</h3>
-            {comparisonItems.map((item, i) => (
-              <p key={item.skill} className={i < revealIndex ? "revealed" : "pending"}>
-                {item.skill}
-                {i < revealIndex && (
-                  <span className={item.isMatch ? "tick" : "cross"}>
-                    {item.isMatch ? " ✓" : " ✕"}
+            <div className="chip-list">
+              {comparisonItems.map((item, i) => {
+                const revealed = i < revealIndex;
+                const cls = revealed ? `revealed ${item.isMatch ? "is-match" : "is-gap"}` : "pending";
+                return (
+                  <span key={item.skill} className={`skill-chip ${cls}`}>
+                    {item.skill}
+                    {revealed && (item.isMatch ? " ✓" : " ✕")}
                   </span>
-                )}
-              </p>
-            ))}
+                );
+              })}
+            </div>
           </div>
         </div>
       )}

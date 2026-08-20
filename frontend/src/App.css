@@ -1,9 +1,52 @@
+body {
+  background: #e9f1f5;
+  min-height: 100vh;
+}
+
+.page {
+  padding: 56px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+/* The "A4 sheet" — a couple of faint rotated sheets sit behind it via
+   ::before/::after, like a fanned stack, and the main sheet settles flat
+   on load. */
 .matcher {
-  /* A4 width at 96dpi (210mm) */
-  max-width: 794px;
-  margin: 40px auto;
-  padding: 0 20px;
+  position: relative;
+  width: 794px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 40px 48px 56px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(22, 33, 46, 0.14);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  animation: sheet-settle 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.matcher::before,
+.matcher::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(22, 33, 46, 0.08);
+  z-index: -1;
+}
+
+.matcher::before {
+  transform: rotate(-3deg) translateY(4px);
+}
+
+.matcher::after {
+  transform: rotate(3deg) translateY(4px);
+}
+
+@keyframes sheet-settle {
+  from { opacity: 0; transform: rotate(-4deg) translateY(-10px) scale(0.97); }
+  to { opacity: 1; transform: rotate(0) translateY(0) scale(1); }
 }
 
 h1 {
@@ -86,15 +129,14 @@ textarea {
   margin-top: 12px;
 }
 
-/* Skills comparison — two columns, right side reveals tick/cross one
-   item at a time as the animation runs. */
+/* Skills comparison — two columns of wrapping chips (not one skill per
+   line) so the width the A4 sheet actually offers gets used, with the
+   right side revealing tick/cross one chip at a time. */
 .compare {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
   margin-top: 28px;
-  font-family: "SFMono-Regular", Menlo, monospace;
-  font-size: 13.5px;
 }
 
 .compare-col h3 {
@@ -103,30 +145,43 @@ textarea {
   letter-spacing: 0.05em;
   color: #666;
   margin: 0 0 10px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-.compare-col p {
-  margin: 0 0 6px;
+.compare-col .chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.compare-col .skill-chip {
+  font-family: "SFMono-Regular", Menlo, monospace;
+  font-size: 11.5px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid #e0e0e0;
+  background: #f7f9fa;
+  white-space: nowrap;
 }
 
 .compare-col .pending {
   color: #bbb;
+  border-color: #eee;
 }
 
 .compare-col .revealed {
-  color: #16212e;
   animation: pop-in 0.25s ease-out;
 }
 
-.tick {
+.compare-col .revealed.is-match {
   color: #2f7d5d;
-  font-weight: 700;
+  border-color: #bfe0d1;
+  background: #eef7f2;
 }
 
-.cross {
+.compare-col .revealed.is-gap {
   color: #a6373a;
-  font-weight: 700;
+  border-color: #edc7c8;
+  background: #fbeeee;
 }
 
 @keyframes pop-in {
@@ -162,7 +217,7 @@ textarea {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  textarea, .compare-col .revealed, .result {
+  .matcher, textarea, .compare-col .revealed, .result {
     animation: none;
   }
 }
