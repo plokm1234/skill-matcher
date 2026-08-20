@@ -10,19 +10,27 @@ class MatchResult:
     suggestion: str
 
 
-def dominant_category(skill_categories: list[str]) -> str | None:
-    """Return the most common category among a list of skill categories.
+def is_same_track(required_categories: list[str], user_track: str) -> bool:
+    """Whether the job ad's required skills belong mainly to the user's
+    selected track.
 
-    Mirrors the SQL GROUP BY / ORDER BY / LIMIT 1 query in Blueprint
-    Sheet 05 — used here for the in-process version; the same query
-    can run directly against Postgres once job ads are persisted.
+    Deliberately a STRICT MAJORITY check, not "most common category" —
+    every matched skill is, by construction, tagged with user_track's own
+    category (it came from the user's own skill set), so once match% >=
+    50%, user_track can at best TIE for most-common; it can never be
+    outnumbered. A plurality/max() rule therefore only ever resolves
+    the interesting "cross-track but decent overlap" case as a tie, and
+    Postgres's GROUP BY without ORDER BY doesn't guarantee which side of
+    a tie you get — this surfaced as a real bug against the live DB (see
+    Blueprint Sheet 07 / project history) even though fixed-order unit
+    test fixtures happened to mask it. Requiring a strict majority makes
+    a tie resolve to cross-track deterministically, independent of query
+    result ordering.
     """
-    if not skill_categories:
-        return None
-    counts: dict[str, int] = {}
-    for category in skill_categories:
-        counts[category] = counts.get(category, 0) + 1
-    return max(counts, key=counts.get)
+    if not required_categories:
+        return True
+    track_count = required_categories.count(user_track)
+    return track_count > len(required_categories) / 2
 
 
 def build_suggestion(match_pct: float, same_track: bool) -> str:
@@ -58,7 +66,7 @@ def compute_match(
     gap = sorted(required_set - user_set)
 
     match_pct = round(len(matched) / len(required_set) * 100, 1) if required_set else 0.0
-    same_track = dominant_category(required_categories) == user_track
+    same_track = is_same_track(required_categories, user_track)
 
     suggestion = build_suggestion(match_pct, same_track)
 

@@ -78,3 +78,22 @@ def test_cross_track_low_score_is_framed_as_career_change_not_dismissed():
         ["Python", "Git"], ["Software Dev", "Software Dev"], CLERK_SKILLS, "文員"
     )
     assert "轉行" in result.suggestion or "career change" in result.suggestion
+
+
+@pytest.mark.parametrize("order", [
+    ["IT", "IT", "客戶服務", "客戶服務"],
+    ["客戶服務", "客戶服務", "IT", "IT"],
+    ["IT", "客戶服務", "IT", "客戶服務"],
+    ["客戶服務", "IT", "客戶服務", "IT"],
+])
+def test_exact_category_tie_is_cross_track_regardless_of_list_order(order):
+    # A 50/50 split between the user's own track and another category is a
+    # tie by count — same_track must resolve to False no matter what order
+    # the categories arrive in (Postgres's GROUP BY gives no order guarantee).
+    result = compute_match(
+        ["Troubleshooting", "Ticketing System", "Communication", "Complaint Handling"],
+        order,
+        CS_ASSISTANT_SKILLS,
+        "客戶服務",
+    )
+    assert result.same_track is False

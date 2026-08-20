@@ -18,22 +18,22 @@ const DEMO_EXAMPLES = [
   {
     label: "跨track · 高分",
     jobText:
-      "IT Support Assistant needed to handle daily troubleshooting requests, log issues via our ticketing system, and provide clear communication with non-technical staff. Strong complaint handling and customer communication skills required.",
+      "IT Support Assistant needed to handle daily Troubleshooting and Ticketing System duties. Communication and Complaint Handling skills required when supporting non-technical staff.",
   },
   {
     label: "同track · 高match",
     jobText:
-      "IT Support Officer needed to provide first-line troubleshooting, manage basic Windows and networking issues, and log all requests through our internal ticketing system.",
+      "IT Support Officer needed to provide first-line Troubleshooting, handle Windows/Networking Basics issues, and log all requests through our internal Ticketing System.",
   },
   {
     label: "同track · 中match",
     jobText:
-      "Admin Officer required to handle daily data entry and office filing, while also supervising a small team and coordinating with external vendors on office supplies.",
+      "Admin Officer required to handle daily Data Entry and office Filing, while also taking on Team Supervision and Vendor Coordination responsibilities.",
   },
   {
     label: "同track · 低match",
     jobText:
-      "Administration Manager responsible for department budget management, developing internal policies, and coordinating cross-departmental initiatives across the organization.",
+      "Administration Manager responsible for Department Budget Management, Policy Development, and Cross-dept Coordination across the organization.",
   },
 ];
 
