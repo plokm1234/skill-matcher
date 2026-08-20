@@ -52,7 +52,103 @@ async function getJson(url, opts) {
   return res.json();
 }
 
+// Small outline icons for the sample page's meta rows — plain inline SVG,
+// no icon library needed for four shapes.
+const ICON_PROPS = {
+  className: "jobsdb-icon",
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: "2",
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+};
+
+const IconPin = () => (
+  <svg {...ICON_PROPS}>
+    <path d="M12 21s-7-7.58-7-12a7 7 0 1 1 14 0c0 4.42-7 12-7 12z" />
+    <circle cx="12" cy="9" r="2.5" />
+  </svg>
+);
+
+const IconBriefcase = () => (
+  <svg {...ICON_PROPS}>
+    <rect x="2" y="7" width="20" height="14" rx="2" />
+    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+  </svg>
+);
+
+const IconClock = () => (
+  <svg {...ICON_PROPS}>
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
+  </svg>
+);
+
+const IconSalary = () => (
+  <svg {...ICON_PROPS}>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 6v12M15.5 9.5c0-1.4-1.6-2.5-3.5-2.5S8.5 8.1 8.5 9.5s1.6 2 3.5 2 3.5.6 3.5 2-1.6 2.5-3.5 2.5-3.5-1.1-3.5-2.5" />
+  </svg>
+);
+
+const IconInfo = () => (
+  <svg {...ICON_PROPS} className="jobsdb-icon jobsdb-icon-info">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="16" x2="12" y2="11" />
+    <circle cx="12" cy="8" r="0.5" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+const IconBuilding = () => (
+  <svg {...ICON_PROPS}>
+    <rect x="4" y="2" width="16" height="20" rx="1" />
+    <path d="M9 22v-6h6v6" />
+    <path d="M9 6h.01M15 6h.01M9 10h.01M15 10h.01M9 14h.01M15 14h.01" />
+  </svg>
+);
+
+const IconUsers = () => (
+  <svg {...ICON_PROPS}>
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+);
+
+// Sample page header + description — written in the same shape as a real
+// JobsDB posting (title / company / location / category / employment type /
+// salary / posted-age / application-volume badge, then a "Jobs Description"
+// section, then a "Company profile" section), but every value here is
+// invented, not copied from any real ad or company.
+const SAMPLE_AD = {
+  title: "IT Support Officer (Fresh Graduates Welcome)",
+  company: "Demo Corp Limited",
+  location: "Hong Kong",
+  category: "Help Desk & IT Support (Information & Communication Technology)",
+  employmentType: "Full time",
+  salary: "Salary undisclosed",
+  postedAge: "Posted 12d ago",
+  volumeBadge: "High application volume",
+  overview:
+    "Demo Corp Limited is looking for an IT Support Officer to handle daily technical support duties.",
+  responsibilities: [
+    "Handle daily Troubleshooting and log requests via our Ticketing System",
+    "Provide first-line support to non-technical staff",
+  ],
+  requirements: [
+    "Strong Communication and Complaint Handling skills",
+    "Fresh graduates welcome",
+  ],
+  industry: "Information Technology Services",
+  employeeCount: "51-200 employees",
+  companyBlurb: "Demo Corp Limited provides IT support services to businesses across Hong Kong.",
+};
+
 export default function JobMatcher() {
+  const [page, setPage] = useState("main"); // "main" | "sample"
+
   const [title, setTitle] = useState(TITLES[0]);
   const [titleSkills, setTitleSkills] = useState([]);
 
@@ -144,7 +240,28 @@ export default function JobMatcher() {
 
   return (
     <div className="matcher">
-      <div className="matcher-sheet">
+      {/* Sheet "3" of the 4-layer fan — a real full-size rotated sheet,
+          same bottom-left origin as every other layer, not a floating
+          label. Its own rotation is what pushes its top-right corner out
+          past .sheet-active's flat edge, exactly like layers 1/2 already
+          do. Most of the rectangle sits underneath .sheet-active, so only
+          the exposed corner is ever visible or clickable; clicking it
+          turns the page. */}
+      <button
+        className="page-flip-sheet"
+        onClick={() => setPage(page === "main" ? "sample" : "main")}
+        type="button"
+        aria-label={page === "main" ? "下一頁:示範Job Ad" : "返回 Skill Matcher"}
+      >
+        <span className="page-flip-sheet-label">
+          {page === "main" ? "示範Job Ad ›" : "‹ 返回上一頁"}
+        </span>
+      </button>
+
+      {/* Sheet "3": the main tool. Always rendered (state must stay mounted
+          across a page flip) — .sheet-active/.sheet-inactive decides
+          whether it's the flat front card or the rotated peek behind it. */}
+      <div className={`sheet ${page === "main" ? "sheet-active" : "sheet-inactive"}`}>
       <h1>Skill Matcher</h1>
       <p className="notice">
         Demo使用免費伺服器,載入可能要等耐少少。
@@ -253,6 +370,91 @@ export default function JobMatcher() {
           <p className="suggestion">建議: {result.suggestion}</p>
         </div>
       )}
+      </div>
+
+      {/* Sheet "2": the sample page. Previously .matcher::after — a plain
+          decorative rotated rectangle with no content — is now this real
+          element, so the "middle sheet" of the 3-sheet stack is what
+          actually holds page 2, instead of a link buried inside sheet 3. */}
+      <div className={`sheet ${page === "sample" ? "sheet-active" : "sheet-inactive"}`}>
+      <h1>示範Job Ad</h1>
+      <p className="notice">
+        呢頁仿造真實job board嘅版面,教你貼job description時應該揀邊一部分。
+      </p>
+
+      <div className="jobsdb-mock">
+        <div className="jobsdb-header">
+          <h2 className="jobsdb-job-title">{SAMPLE_AD.title}</h2>
+          <div className="jobsdb-company-row">
+            <span className="jobsdb-company">
+              {SAMPLE_AD.company}
+              <span className="jobsdb-verified" title="Verified">✓</span>
+            </span>
+            <span className="jobsdb-view-all">View all jobs</span>
+          </div>
+          <div className="jobsdb-meta-list">
+            <div className="jobsdb-meta-row">
+              <IconPin />
+              <span>{SAMPLE_AD.location}</span>
+            </div>
+            <div className="jobsdb-meta-row">
+              <IconBriefcase />
+              <span>{SAMPLE_AD.category}</span>
+            </div>
+            <div className="jobsdb-meta-row">
+              <IconClock />
+              <span>{SAMPLE_AD.employmentType}</span>
+            </div>
+            <div className="jobsdb-meta-row">
+              <IconSalary />
+              <span>{SAMPLE_AD.salary}</span>
+              <IconInfo />
+            </div>
+          </div>
+          <div className="jobsdb-posted-row">
+            <span>{SAMPLE_AD.postedAge}</span>
+            <span className="jobsdb-dot">·</span>
+            <span className="jobsdb-volume">{SAMPLE_AD.volumeBadge}</span>
+          </div>
+        </div>
+
+
+        <div className="jobsdb-copy-target">
+          <span className="copy-badge">👇 貼呢part</span>
+          <p className="jobsdb-overview">{SAMPLE_AD.overview}</p>
+          <p className="jobsdb-subhead">Responsibilities</p>
+          <ul>
+            {SAMPLE_AD.responsibilities.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+          <p className="jobsdb-subhead">Requirements</p>
+          <ul>
+            {SAMPLE_AD.requirements.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="jobsdb-company-profile">
+          <h4 className="jobsdb-section-label">Company profile</h4>
+          <div className="jobsdb-profile-name-row">
+            <span>{SAMPLE_AD.company}</span>
+            <span className="jobsdb-verified" title="Verified">✓</span>
+          </div>
+          <div className="jobsdb-meta-list">
+            <div className="jobsdb-meta-row">
+              <IconBuilding />
+              <span>{SAMPLE_AD.industry}</span>
+            </div>
+            <div className="jobsdb-meta-row">
+              <IconUsers />
+              <span>{SAMPLE_AD.employeeCount}</span>
+            </div>
+          </div>
+          <p className="jobsdb-profile-blurb">{SAMPLE_AD.companyBlurb}</p>
+        </div>
+      </div>
       </div>
     </div>
   );

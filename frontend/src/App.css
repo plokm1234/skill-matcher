@@ -9,22 +9,36 @@ body {
   justify-content: center;
 }
 
-/* A4 sheet, portrait: 210x297mm = 794x1123px at 96dpi. Four explicit
-   layers, back-to-front:
-     1 = .matcher::before   (z-index 1, furthest back — a rotated sheet)
-     2 = .matcher::after    (z-index 2, next — a rotated sheet)
-     3 = .matcher-sheet     (z-index 3, the flat 0deg card — no transform)
-     4 = .matcher-sheet's content (h1, buttons, text) — normal flow inside
-         it, so it's always on top of layer 3 automatically
+/* A4 sheet, portrait: 210x297mm = 794x1123px at 96dpi. Four layers,
+   back-to-front, all sharing the same transform-origin (bottom left) so
+   they fan out consistently:
+     1 = .matcher::before        (z-index 1, furthest back — a plain
+                                   rotated rectangle, pure decoration)
+     2 = .sheet.sheet-inactive   (z-index 2 — whichever page (main/sample)
+                                   ISN'T showing, rotated, content hidden)
+     3 = .page-flip-sheet        (z-index 3 — a real rotated sheet, not
+                                   just a floating label. Its own rotation
+                                   is what pushes its top-right corner out
+                                   past the flat front sheet's edge, the
+                                   same mechanism that already makes
+                                   layers 1/2 visibly peek out.)
+     4 = .sheet.sheet-active     (z-index 4, flat 0deg, normal flow — the
+                                   page actually on screen)
+
+   Both real pages share the same .sheet look and swap which role they
+   play via .sheet-active/.sheet-inactive, so "flipping" to the sample
+   page literally swaps which physical sheet is the flat front one,
+   rather than a link buried inside a single fixed front card. The
+   inactive sheet keeps its own background/shadow (so it still reads as
+   "a second sheet of paper") but hides its children — position:absolute
+   so it doesn't drive .matcher's height, and it never needs to size to
+   its own content since nothing inside it is visible anyway.
 
    .matcher itself carries no background of its own on purpose. An
    element's own background paints BEFORE (below) its children — including
    negative-z-index children — so if .matcher held the "flat sheet" look
-   itself, layers 1/2 would end up painted between the flat sheet and the
-   text instead of behind everything, even at negative z-index. Splitting
-   the flat sheet into its own real element (.matcher-sheet) with a plain
-   positive z-index above 1/2 avoids relying on that implicit ordering
-   rule at all — the four layers are each a real, explicitly ordered box. */
+   itself, layer 1 would end up painted between the flat sheet and the
+   text instead of behind everything, even at negative z-index. */
 .matcher {
   position: relative;
   z-index: 0;
@@ -34,30 +48,19 @@ body {
   margin: 0 auto;
 }
 
-.matcher::before,
-.matcher::after {
+.matcher::before {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 1;               /* sheet "1" — always back, always decorative */
   background: #dfe1df;
   border-radius: 10px;
   box-shadow: 0 8px 20px rgba(22, 33, 46, 0.5);
   transform-origin: bottom left;   /* FAN_CORNER — change to pin elsewhere */
+  transform: rotate(-4deg);
 }
 
-.matcher::before {
-  z-index: 1;              /* sheet "1" */
-  transform: rotate(-2deg);
-}
-
-.matcher::after {
-  z-index: 2;              /* sheet "2" */
-  transform: rotate(-1deg);
-}
-
-.matcher-sheet {
-  position: relative;
-  z-index: 3;               /* sheet "3" — flat, no transform, always front */
+.sheet {
   width: 100%;
   min-height: 794px;
   padding: 40px 48px 56px;
@@ -65,11 +68,64 @@ body {
   border-radius: 10px;
   box-shadow: 0 12px 32px rgba(22, 33, 46, 0.14);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  transform-origin: bottom left;
+  transition: transform 0.25s ease;
   /* No entrance animation here on purpose — this card holds every piece of
      interactive content. An animation that never completes (backgrounded
      tab, browser throttling, anything) would leave the whole page invisible
      at opacity:0 with no way to recover. Content visibility must not
      depend on an animation finishing. */
+}
+
+.sheet-active {
+  position: relative;      /* in normal flow — drives .matcher's height */
+  z-index: 4;
+  transform: rotate(0deg);
+}
+
+.sheet-inactive {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  transform: rotate(-2deg);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.sheet-inactive > * {
+  visibility: hidden;
+}
+
+/* Sheet "3" of the fan — always present, always visible, regardless of
+   which page is active. It's a full A4-sized rotated rectangle just like
+   layers 1/2, so its own top-right corner naturally pokes out past
+   .sheet-active's flat edge — the same mechanism that makes layers 1/2
+   visibly peek out. Most of the rectangle sits underneath .sheet-active,
+   so only the exposed corner is ever visible or clickable — a real
+   <button>, clicking anywhere on the visible part turns the page. */
+.page-flip-sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(22, 33, 46, 0.5);
+  background: #eeece7;
+  transform-origin: bottom left;
+  transform: rotate(-2deg);
+}
+
+.page-flip-sheet-label {
+  position: absolute;
+  top: 22px;
+  right: 26px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #6d7072;
+  white-space: nowrap;
 }
 
 
@@ -160,7 +216,7 @@ label {
   top: 50%;
   height: 2px;
   background: #f09e94;
-  transform: rotate(-10deg);
+  transform: rotate(-6deg);
 }
 
 textarea {
@@ -294,4 +350,185 @@ textarea {
   textarea, .compare-col .revealed, .result {
     animation: none;
   }
+}
+
+/* Sample page: a deliberately duller, denser look than the rest of the
+   app — it's standing in for a real job board screenshot, not another
+   polished app card, so the header/chrome areas are muted while the one
+   part users should actually copy (jobsdb-copy-target) is the only thing
+   that pops. */
+.jobsdb-mock {
+  margin-top: 10px;
+  padding: 10px;
+  background: #F8F8F5;
+  border: 1px solid #d7d7d7;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #333;
+}
+
+.muted-block {
+  color: #999;
+}
+
+.jobsdb-header {
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.jobsdb-job-title {
+  font-size: 17px;
+  margin: 0 0 8px;
+}
+
+.jobsdb-company-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.jobsdb-company {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  display: inline-flex;
+  align-items: center;
+}
+
+.jobsdb-verified {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: #1f6fa8;
+  color: #fff;
+  font-size: 9px;
+  line-height: 1;
+}
+
+.jobsdb-view-all {
+  font-size: 12px;
+  color: #1f6fa8;
+  text-decoration: underline;
+}
+
+.jobsdb-meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.jobsdb-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #444;
+}
+
+.jobsdb-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: #8a8a8a;
+}
+
+.jobsdb-icon-info {
+  width: 12px;
+  height: 12px;
+}
+
+.jobsdb-posted-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #999;
+}
+
+.jobsdb-dot {
+  color: #ccc;
+}
+
+.jobsdb-section-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+  margin: 18px 0 4px;
+}
+
+.jobsdb-copy-target {
+  position: relative;
+  border: 2px dashed #e0a63d;
+  background: #fff8e6;
+  border-radius: 6px;
+  padding: 22px 16px 16px;
+}
+
+.jobsdb-copy-target p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #333;
+  white-space: pre-wrap;
+}
+
+.jobsdb-overview {
+  margin-bottom: 10px !important;
+}
+
+.jobsdb-subhead {
+  font-weight: 700;
+  margin: 12px 0 4px !important;
+}
+
+.jobsdb-copy-target ul {
+  margin: 0 0 4px;
+  padding-left: 18px;
+}
+
+.jobsdb-copy-target li {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.copy-badge {
+  position: absolute;
+  top: -12px;
+  left: 12px;
+  background: #e0a63d;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.jobsdb-company-profile {
+  margin-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.jobsdb-profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  margin: 10px 0 8px;
+}
+
+.jobsdb-profile-blurb {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #555;
+  margin: 4px 0 0;
 }
