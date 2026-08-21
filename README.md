@@ -1,4 +1,4 @@
-# Skill Matcher
+# Skill Matcher (AI-Assisted Development)
 
 ![Tests](https://github.com/plokm1234/skill-matcher/actions/workflows/test.yml/badge.svg)
 
