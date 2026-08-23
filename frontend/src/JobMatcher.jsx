@@ -6,7 +6,11 @@ const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 // These 5 title_name values must match backend/db/seed.sql.
 const TITLES = ["文員", "客戶服務助理", "IT Support", "行政經理", "IT Manager"];
 
-// Self-authored, not scraped — see Blueprint Sheet 02 for why.
+// Self-authored, not scraped — see Blueprint Sheet 02 for why. Each has an
+// explicit "Requirements" / "Nice to have" split (matching how real job
+// ads are commonly structured) so the backend's split_core_and_nice() has
+// something real to demonstrate — "core" here is a property of the job ad
+// text itself, not derived from whichever title happens to be selected.
 // Each needs its own `key` — without one, every demo chip fell back to the
 // same `undefined` and all 5 lit up together once any one was picked.
 const DEMO_EXAMPLES = [
@@ -14,31 +18,31 @@ const DEMO_EXAMPLES = [
     key: "cross-low",
     label: "Software Developer",
     jobText:
-      "We are looking for a Software Developer with strong experience in Python, Git, Data Structures and Algorithms. You will design and maintain backend systems, write clean testable code, and collaborate with cross-functional teams.",
+      "Requirements: Strong experience in Python, Git, Data Structures and Algorithms. Design and maintain backend systems, writing clean, testable code. Nice to have: Familiarity with Agile practices on cross-functional teams.",
   },
   {
     key: "same-high",
     label: "IT Support Officer",
     jobText:
-      "IT Support Assistant needed to handle daily Troubleshooting and Ticketing System duties. Communication and Complaint Handling skills required when supporting non-technical staff.",
+      "Requirements: Handle daily Troubleshooting and Ticketing System duties. Nice to have: Strong Communication and Complaint Handling skills when supporting non-technical staff.",
   },
   {
     key: "cross-high",
     label: "IT Support Assistant",
     jobText:
-      "IT Support Officer needed to provide first-line Troubleshooting, handle Windows/Networking Basics issues, and log all requests through our internal Ticketing System.",
+      "Requirements: Provide first-line Troubleshooting, handle Windows/Networking Basics issues, and log all requests through our internal Ticketing System. Nice to have: Exposure to basic System Administration tasks.",
   },
   {
     key: "same-mid",
     label: "Admin Officer",
     jobText:
-      "Admin Officer required to handle daily Data Entry and office Filing, while also taking on Team Supervision and Vendor Coordination responsibilities.",
+      "Requirements: Handle daily Data Entry and office Filing duties. Nice to have: Experience taking on Team Supervision and Vendor Coordination responsibilities.",
   },
   {
     key: "same-low",
     label: "Administration Manager",
     jobText:
-      "Administration Manager responsible for Department Budget Management, Policy Development, and Cross-dept Coordination across the organization.",
+      "Requirements: Department Budget Management and Cross-dept Coordination across the organization. Nice to have: Policy Development experience.",
   },
 ];
 
@@ -155,7 +159,13 @@ export default function JobMatcher() {
 
   const [jobOption, setJobOption] = useState(null);
   const [jobText, setJobText] = useState("");
-  const [requiredSkills, setRequiredSkills] = useState([]);
+  // The pasted job ad's OWN Requirements vs Nice-to-have skills — split
+  // from how the ad itself is written (backend split_core_and_nice()),
+  // not by checking membership against the selected title's skill set.
+  // "Core" is a property of the job ad, independent of which of the 5
+  // titles happens to be selected on the left.
+  const [jobCoreSkills, setJobCoreSkills] = useState([]);
+  const [jobNiceSkills, setJobNiceSkills] = useState([]);
 
   const [result, setResult] = useState(null);
   const [revealIndex, setRevealIndex] = useState(0);
@@ -165,9 +175,6 @@ export default function JobMatcher() {
   const [error, setError] = useState(null);
 
   // Title skills preview — fetched whenever the selected title changes.
-  // Core/nice-to-have are kept separate (not flattened into one list) so
-  // both this column and the required-skills column can label each chip
-  // explicitly instead of leaving the split implicit in the match%.
   useEffect(() => {
     getJson(`${API_BASE}/title-skills?title=${encodeURIComponent(title)}`)
       .then((d) => {
@@ -180,19 +187,10 @@ export default function JobMatcher() {
       });
   }, [title]);
 
-  // A required skill is only "core" or "nice-to-have" relative to the
-  // selected title's own skill set — one that falls outside both (e.g. a
-  // Python job ad pasted while IT Support is selected) gets no tier tag,
-  // it's just cross-track gap material.
-  function tierOf(skill) {
-    if (coreSkills.includes(skill)) return "core";
-    if (niceSkills.includes(skill)) return "nice";
-    return null;
-  }
-
   async function previewRequiredSkills(text) {
     if (!text.trim()) {
-      setRequiredSkills([]);
+      setJobCoreSkills([]);
+      setJobNiceSkills([]);
       return;
     }
     try {
@@ -201,9 +199,11 @@ export default function JobMatcher() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ job_text: text }),
       });
-      setRequiredSkills(d.skills);
+      setJobCoreSkills(d.core_skills);
+      setJobNiceSkills(d.nice_skills);
     } catch {
-      setRequiredSkills([]);
+      setJobCoreSkills([]);
+      setJobNiceSkills([]);
     }
   }
 
@@ -213,7 +213,8 @@ export default function JobMatcher() {
     setShowSummary(false);
     if (opt.key === "manual") {
       setJobText("");
-      setRequiredSkills([]);
+      setJobCoreSkills([]);
+      setJobNiceSkills([]);
     } else {
       setJobText(opt.jobText);
       previewRequiredSkills(opt.jobText);
@@ -239,6 +240,13 @@ export default function JobMatcher() {
     }
   }
 
+  // Combined, in a stable order (core first, then nice-to-have) — used
+  // only to size/index the reveal animation below. The actual grouped
+  // rendering reads jobCoreSkills/jobNiceSkills directly; there's no
+  // membership check against the title needed anymore, the job ad's own
+  // extraction already tells us which bucket each skill is in.
+  const requiredSkills = [...jobCoreSkills, ...jobNiceSkills];
+
   // Extract doesn't create the skill chips — they're already on screen the
   // moment title/job description are picked. It only flips each one's CSS
   // state from "pending" to tick/cross, one at a time.
@@ -258,22 +266,11 @@ export default function JobMatcher() {
     return () => clearInterval(timer);
   }, [result]);
 
-  // Grouped for rendering — just core vs everything else (nice-to-have
-  // and cross-track skills merged into one "其他" bucket for display; the
-  // nice-to-have/other distinction still matters for match_pct on the
-  // backend, it's just not worth a third visual group here). Each entry
-  // keeps its original index (origIndex) so the reveal animation still
-  // ticks through skills in detection order even though they're laid out
-  // in two groups rather than one flat list. This runs as soon as
-  // requiredSkills is populated (right after a demo is picked or pasted
-  // text is blurred), not gated on Extract.
-  const requiredWithTier = requiredSkills.map((skill, origIndex) => ({
+  const coreRequired = jobCoreSkills.map((skill, i) => ({ skill, origIndex: i }));
+  const otherRequired = jobNiceSkills.map((skill, i) => ({
     skill,
-    origIndex,
-    tier: tierOf(skill),
+    origIndex: jobCoreSkills.length + i,
   }));
-  const coreRequired = requiredWithTier.filter((r) => r.tier === "core");
-  const otherRequired = requiredWithTier.filter((r) => r.tier !== "core");
 
   function renderRequiredChip({ skill, origIndex }) {
     if (!result) {

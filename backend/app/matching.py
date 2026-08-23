@@ -38,6 +38,46 @@ def extract_description_block(raw_text: str) -> str:
     return raw_text[start:end].strip()
 
 
+# Phrases job ads commonly use to introduce the "this isn't strictly
+# required" part of the listing. Whatever comes before the first match is
+# treated as the must-have requirements; whatever comes after is
+# nice-to-have. This is what makes "core" a property of the JOB AD
+# ITSELF — extracted from how the ad is actually written — rather than a
+# property borrowed from whichever title the user happens to have
+# selected on the left.
+#
+# Requires a colon right after the phrase (":" or the full-width "："),
+# because these words show up constantly in ordinary prose OUTSIDE a
+# section header — "salary plus year-end bonus", "5+ years is a bonus",
+# "we prefer candidates who...". Matching on the bare word alone would
+# split the ad at that incidental mention and dump everything after it —
+# including a genuine "Requirements:" section further down — into
+# nice-to-have, silently downgrading real core skills. A trailing colon is
+# what real job ads actually use for a section heading ("Nice to have:",
+# "Preferred:", "Bonus:"), so requiring it is a strong signal this is a
+# heading and not just the word appearing mid-sentence.
+_NICE_TO_HAVE_MARKER = re.compile(
+    r"(?:nice\s*to\s*have|preferred|bonus(?:es)?|advantageous|plus|額外加分|加分項)\s*[:：]",
+    re.IGNORECASE,
+)
+
+
+def split_core_and_nice(description: str) -> tuple[str, str]:
+    """Split an already-trimmed description block into (core_text,
+    nice_text) on the first "Nice to have:" / "Preferred:" / "Bonus:"
+    style section heading.
+
+    Falls back to treating the whole block as core (nice_text = "") when
+    no such heading is found — most job ads don't bother separating the
+    two explicitly, and defaulting unmarked content to "required" is the
+    safer assumption than guessing which parts are optional.
+    """
+    match = _NICE_TO_HAVE_MARKER.search(description)
+    if not match:
+        return description, ""
+    return description[: match.start()], description[match.end() :]
+
+
 def match_skills(text: str, skills: dict[str, list[str]]) -> list[str]:
     """Find which skills are mentioned in `text`.
 

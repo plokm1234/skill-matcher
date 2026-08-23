@@ -314,21 +314,18 @@ textarea {
   white-space: nowrap;
 }
 
-/* Left column only — core skills are solid/filled, nice-to-have are
-   dashed/pale, so the two tiers read differently even without the
-   header text. */
-.compare-col .skill-chip.tier-core {
-  background: #1f6fa8;
-  color: #fff;
-  border-color: #1f6fa8;
-  font-weight: 600;
-}
-
+/* Left column only — both tiers use the exact same plain chip look as
+   the Title/Job Description selection rows (white background, black
+   text, #d0d0d0 border) rather than colour-coding core vs nice-to-have.
+   The "核心 Skills" / "其他 Skills" headers above each group are what
+   carries the distinction now, not chip colour. */
+.compare-col .skill-chip.tier-core,
 .compare-col .skill-chip.tier-nice {
-  background: #f2f2f2;
-  color: #888;
-  border-color: #ddd;
-  border-style: dashed;
+  background: #fff;
+  color: #000;
+  border: 1px solid #d0d0d0;
+  border-style: solid;
+  font-weight: 400;
 }
 
 /* "Other" required skills — ones the pasted job ad asks for that aren't

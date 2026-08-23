@@ -1,4 +1,4 @@
-from app.matching import extract_description_block, match_skills
+from app.matching import extract_description_block, match_skills, split_core_and_nice
 
 SKILLS = {
     "Java": [],
@@ -176,3 +176,40 @@ def test_extract_description_block_strips_footer_heavy_noise():
 def test_extract_description_block_falls_back_to_full_text_without_marker():
     raw = "Looking for a Python developer with SQL experience."
     assert extract_description_block(raw) == raw
+
+
+def test_split_core_and_nice_separates_on_nice_to_have_marker():
+    core, nice = split_core_and_nice(
+        "Requires Python and SQL. Nice to have: Docker and AWS experience."
+    )
+    assert match_skills(core, SKILLS) == ["Python", "SQL"]
+    assert match_skills(nice, SKILLS) == []  # Docker/AWS aren't in the SKILLS fixture
+    assert "Python" not in nice
+    assert "SQL" not in nice
+
+
+def test_split_core_and_nice_recognises_preferred_and_bonus_variants():
+    for marker in ["Preferred:", "Bonus:", "Advantageous:", "Nice to have:"]:
+        core, nice = split_core_and_nice(f"Must know Python. {marker} Java experience.")
+        assert match_skills(core, SKILLS) == ["Python"]
+        assert match_skills(nice, SKILLS) == ["Java"]
+
+
+def test_split_core_and_nice_requires_a_colon_to_avoid_false_positives():
+    # These words show up constantly in ordinary prose that has nothing to
+    # do with a "nice to have" section — without requiring a trailing
+    # colon, "plus" here would wrongly split the ad and dump the genuine
+    # Requirements section (mentioning SQL) into the nice-to-have bucket,
+    # silently downgrading a real core skill.
+    core, nice = split_core_and_nice(
+        "Salary: HK$20,000 plus year-end bonus. "
+        "Requirements: Strong Python and SQL skills required."
+    )
+    assert match_skills(core, SKILLS) == ["Python", "SQL"]
+    assert nice == ""
+
+
+def test_split_core_and_nice_treats_whole_text_as_core_without_a_marker():
+    core, nice = split_core_and_nice("Looking for a Python developer with SQL experience.")
+    assert set(match_skills(core, SKILLS)) == {"Python", "SQL"}
+    assert nice == ""

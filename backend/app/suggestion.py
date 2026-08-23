@@ -53,40 +53,59 @@ def build_suggestion(match_pct: float, same_track: bool) -> str:
     return "缺口較大,建議先加強缺少嘅核心skill"
 
 
-# How much core-skill coverage vs nice-to-have coverage counts toward
-# match_pct. Chosen so the two boundary cases line up exactly with
-# build_suggestion's existing thresholds: 100% core coverage alone lands at
-# CORE_WEIGHT*100 = 80, which is exactly the ">= 80 → 可以申請" cutoff — a
-# candidate who has every core skill for the role should clear that bar
-# regardless of how many nice-to-haves they're missing. 100% nice-to-have
-# coverage alone (no core skills at all) lands at NICE_WEIGHT*100 = 20,
-# staying well under the "缺口較大" (< 50) cutoff — nice-to-haves can't
-# paper over a missing core skill set.
+# How much coverage of the job ad's OWN core requirements vs its OWN
+# nice-to-haves counts toward match_pct. Chosen so covering 100% of a
+# job's core requirements clears the ">= 80 → 可以申請" cutoff on its
+# own — CORE_WEIGHT*100 = 80 — regardless of how many of its nice-to-haves
+# are missing (that lands exactly at 80 when the job also lists a
+# nice-to-have section the candidate doesn't meet; it lands higher, up to
+# 100, when the job has no nice-to-have section at all — see the
+# core-coverage-empty note below for why that's not double counted the
+# other way). Covering 100% of a job's nice-to-haves with NONE of its
+# actual core requirements stays at NICE_WEIGHT*100 = 20, well under the
+# "缺口較大" (< 50) cutoff — nice-to-haves can't paper over what a job
+# actually asks for.
 CORE_WEIGHT = 0.8
 NICE_WEIGHT = 0.2
 
 
 def compute_match(
-    required_skills: list[str],
+    job_core_skills: list[str],
+    job_nice_skills: list[str],
     required_categories: list[str],
-    core_skills: list[str],
-    nice_skills: list[str],
+    user_skills: list[str],
     user_track: str,
 ) -> MatchResult:
-    required_set = set(required_skills)
-    core_set = set(core_skills)
-    nice_set = set(nice_skills)
-    user_set = core_set | nice_set
+    """job_core_skills/job_nice_skills are the PASTED JOB AD's own
+    requirements vs nice-to-haves (split from how the ad itself is
+    written — see matching.split_core_and_nice), not derived from
+    user_skills. "Core" is a property of the job ad, not of whichever
+    title happens to be selected — comparing core-to-core suitability is
+    the whole point of the split.
+    """
+    job_core_set = set(job_core_skills)
+    job_nice_set = set(job_nice_skills)
+    required_set = job_core_set | job_nice_set
+    user_set = set(user_skills)
 
     matched = sorted(required_set & user_set)
     gap = sorted(required_set - user_set)
 
-    # Coverage is "of the skills this title actually calls for at this
-    # tier, how many does the job ad also ask for" — not the reverse — so
-    # an empty tier (no core skills defined, or none of the nice-to-haves
-    # apply) counts as fully covered rather than dividing by zero.
-    core_coverage = len(core_set & required_set) / len(core_set) if core_set else 1.0
-    nice_coverage = len(nice_set & required_set) / len(nice_set) if nice_set else 1.0
+    if not required_set:
+        # Nothing recognisable was detected anywhere in the pasted text —
+        # there's no basis to claim any coverage at all.
+        return MatchResult(match_pct=0.0, matched=[], gap=[], same_track=True, suggestion=build_suggestion(0.0, True))
+
+    # core_coverage empty→0 (NOT 1): unlike the job's nice-to-have section,
+    # which most real ads simply don't have (empty there is the norm, and
+    # shouldn't count against a candidate — see nice_coverage below), an
+    # empty CORE means nothing was recognisable as a stated requirement,
+    # which is either a very sparse ad or a section-split gone wrong —
+    # either way, not evidence of a good match, so it must not default to
+    # "fully covered". nice_coverage empty→1 stays as-is: no nice-to-have
+    # section is the common case and shouldn't be held against anyone.
+    core_coverage = len(job_core_set & user_set) / len(job_core_set) if job_core_set else 0.0
+    nice_coverage = len(job_nice_set & user_set) / len(job_nice_set) if job_nice_set else 1.0
 
     match_pct = round((core_coverage * CORE_WEIGHT + nice_coverage * NICE_WEIGHT) * 100, 1)
     same_track = is_same_track(required_categories, user_track)
