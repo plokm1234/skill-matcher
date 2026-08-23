@@ -9,9 +9,8 @@ see the "X candidates had ZERO hits" line in the output.
 
 Not part of the running app, and not wired into CI. Input CSV isn't
 committed to this repo — job board content shouldn't be redistributed —
-so point --csv at your own download (expects columns matching JobsDB's
-export: at minimum a description column, adjust DESC_COLUMN below for
-other sources).
+so point --csv at your own download (expects at minimum a description
+column; adjust DESC_COLUMN below to match your export's column name).
 
 Usage:
     python scripts/analyze_job_ads.py --csv /path/to/your/job_ads.csv
@@ -24,7 +23,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from app.matching import match_skills  # noqa: E402
 
-DESC_COLUMN = "工作詳細內容"  # JobsDB export column name — change for other sources
+DESC_COLUMN = "工作詳細內容"  # column name in the source export — change to match yours
 
 # The skills currently seeded in db/seed.sql, IT subset (name -> aliases).
 # Keep this in sync manually if seed.sql's IT skills change — it's a

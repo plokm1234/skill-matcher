@@ -355,9 +355,9 @@ textarea {
 /* Sample page: a deliberately duller, denser look than the rest of the
    app — it's standing in for a real job board screenshot, not another
    polished app card, so the header/chrome areas are muted while the one
-   part users should actually copy (jobsdb-copy-target) is the only thing
+   part users should actually copy (sample-ad-copy-target) is the only thing
    that pops. */
-.jobsdb-mock {
+.sample-ad-mock {
   margin-top: 10px;
   padding: 10px;
   background: #F8F8F5;
@@ -371,25 +371,25 @@ textarea {
   color: #999;
 }
 
-.jobsdb-header {
+.sample-ad-header {
   padding-bottom: 14px;
   margin-bottom: 14px;
   border-bottom: 1px solid #eee;
 }
 
-.jobsdb-job-title {
+.sample-ad-job-title {
   font-size: 17px;
   margin: 0 0 8px;
 }
 
-.jobsdb-company-row {
+.sample-ad-company-row {
   display: flex;
   align-items: baseline;
   gap: 12px;
   margin-bottom: 8px;
 }
 
-.jobsdb-company {
+.sample-ad-company {
   font-size: 13px;
   font-weight: 600;
   color: #333;
@@ -397,7 +397,7 @@ textarea {
   align-items: center;
 }
 
-.jobsdb-verified {
+.sample-ad-verified {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -411,20 +411,20 @@ textarea {
   line-height: 1;
 }
 
-.jobsdb-view-all {
+.sample-ad-view-all {
   font-size: 12px;
   color: #1f6fa8;
   text-decoration: underline;
 }
 
-.jobsdb-meta-list {
+.sample-ad-meta-list {
   display: flex;
   flex-direction: column;
   gap: 6px;
   margin-bottom: 10px;
 }
 
-.jobsdb-meta-row {
+.sample-ad-meta-row {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -432,19 +432,19 @@ textarea {
   color: #444;
 }
 
-.jobsdb-icon {
+.sample-ad-icon {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
   color: #8a8a8a;
 }
 
-.jobsdb-icon-info {
+.sample-ad-icon-info {
   width: 12px;
   height: 12px;
 }
 
-.jobsdb-posted-row {
+.sample-ad-posted-row {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -452,18 +452,18 @@ textarea {
   color: #999;
 }
 
-.jobsdb-dot {
+.sample-ad-dot {
   color: #ccc;
 }
 
-.jobsdb-section-label {
+.sample-ad-section-label {
   font-size: 13px;
   font-weight: 700;
   color: #333;
   margin: 18px 0 4px;
 }
 
-.jobsdb-copy-target {
+.sample-ad-copy-target {
   position: relative;
   border: 2px dashed #e0a63d;
   background: #fff8e6;
@@ -471,7 +471,7 @@ textarea {
   padding: 22px 16px 16px;
 }
 
-.jobsdb-copy-target p {
+.sample-ad-copy-target p {
   margin: 0;
   font-size: 13px;
   line-height: 1.6;
@@ -479,21 +479,21 @@ textarea {
   white-space: pre-wrap;
 }
 
-.jobsdb-overview {
+.sample-ad-overview {
   margin-bottom: 10px !important;
 }
 
-.jobsdb-subhead {
+.sample-ad-subhead {
   font-weight: 700;
   margin: 12px 0 4px !important;
 }
 
-.jobsdb-copy-target ul {
+.sample-ad-copy-target ul {
   margin: 0 0 4px;
   padding-left: 18px;
 }
 
-.jobsdb-copy-target li {
+.sample-ad-copy-target li {
   font-size: 13px;
   line-height: 1.6;
   color: #333;
@@ -511,12 +511,12 @@ textarea {
   border-radius: 999px;
 }
 
-.jobsdb-company-profile {
+.sample-ad-company-profile {
   margin-top: 10px;
   border-top: 1px solid #eee;
 }
 
-.jobsdb-profile-name-row {
+.sample-ad-profile-name-row {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -526,7 +526,7 @@ textarea {
   margin: 10px 0 8px;
 }
 
-.jobsdb-profile-blurb {
+.sample-ad-profile-blurb {
   font-size: 12.5px;
   line-height: 1.6;
   color: #555;

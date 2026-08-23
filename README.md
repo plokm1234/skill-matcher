@@ -84,8 +84,8 @@ relationship is mediated by its own junction table, not a shared column.
   dictionary outward into free text, so multi-word skills ("machine
   learning") match as whole phrases without tokenization.
 - **Noise handling** — a marker-based heuristic that trims job-board page
-  chrome from a raw copy-paste, validated against real CTgoodjobs and
-  Indeed postings (see `backend/tests/test_matching.py`).
+  chrome from a raw copy-paste, validated against real postings from two
+  independently-styled job boards (see `backend/tests/test_matching.py`).
 - **Relational schema** — PostgreSQL (Neon) with junction tables for the
   two many-to-many relationships above.
 - **Rule-based suggestions** — a deterministic decision tree (no AI) that

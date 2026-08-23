@@ -42,9 +42,10 @@ INSERT INTO skills (name, category) VALUES
     ('Data Structures', 'Software Dev'),
     ('Algorithms', 'Software Dev'),
 
-    -- Added from real-data analysis: 60 JobsDB IT job ads (2 pages), a
-    -- curated ~60-term candidate list checked against actual frequency,
-    -- keeping only what genuinely appeared. See backend/scripts/analyze_job_ads.py.
+    -- Added from real-data analysis: 60 real IT job ads (2 pages) from a
+    -- job board, a curated ~60-term candidate list checked against actual
+    -- frequency, keeping only what genuinely appeared. See
+    -- backend/scripts/analyze_job_ads.py.
     -- Tagged 'IT' because the source dataset is IT-only — English/Mandarin/
     -- Cantonese in particular aren't really IT-exclusive skills in real
     -- life, so this tagging is a scope simplification tied to where the

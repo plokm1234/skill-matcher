@@ -1,8 +1,8 @@
 import re
 
 # Section-header phrases that mark where the real job description starts,
-# validated against two independent real postings (CTgoodjobs, Indeed) —
-# see Skill Matcher Blueprint Sheet 02.
+# validated against two independently-styled real postings — see Skill
+# Matcher Blueprint Sheet 02.
 _START_MARKER = re.compile(r"jobs?\s*description", re.IGNORECASE)
 
 # Markers that reliably follow the description block on job boards.

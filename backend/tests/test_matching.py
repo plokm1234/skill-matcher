@@ -32,7 +32,7 @@ def test_alias_matches_canonical_skill():
 
 
 def test_non_latin_alias_matches():
-    # Added after the real-JobsDB-data analysis (backend/scripts/analyze_job_ads.py)
+    # Added after the real-data analysis (backend/scripts/analyze_job_ads.py)
     # surfaced how common Chinese-language requirements are in real IT job
     # ads (English 70%, Mandarin 33%, Cantonese 28% of 60 real postings) —
     # aliases aren't just for alternate English spellings.
@@ -55,26 +55,26 @@ def test_latin_term_matches_with_no_space_before_cjk_text():
     assert "Java" not in matched  # still shouldn't match inside "javascript"
 
 
-# Structural fixtures below mirror the pattern found in real CTgoodjobs and
-# Indeed pastes (Blueprint Sheet 02): a page of navigation / related-listing
-# noise, a "job description" marker, the real content, then an end marker
-# followed by more noise. Text is paraphrased, not copied verbatim from any
-# specific posting.
+# Structural fixtures below mirror two distinct page-chrome patterns real
+# job boards commonly use (Blueprint Sheet 02): a page of navigation /
+# related-listing noise, a "job description" marker, the real content, then
+# an end marker followed by more noise. All text — including the company
+# and site names — is invented, not copied from any real posting or site.
 
-CTGOODJOBS_LIKE_PASTE = """
-CTgoodjobs.hk
+NAV_HEAVY_PASTE = """
+Sample Job Board
 Company Profiles
 Learning
 Search location
 Full-time  Part-time  Contract
 
-Sigma Elevator (HK) Limited
+Bright Harbour Elevator (HK) Limited
 電梯助理技工 / 技工
 Kwun Tong
 4 - 9 yr(s)
 14d ago
 
-Otis Elevator Co (HK) Limited
+Northline Elevator Services Ltd
 Registered Lift / Escalator Engineer
 Kowloon Bay
 6 - 11 yr(s)
@@ -102,21 +102,21 @@ Apply Now
 
 Similar Jobs
 
-Michael Page
+Harborview Recruitment
 Customer Service Officer
 1d ago
 
-Mclaren Consultancy Limited
+Alden Consultancy Limited
 Engineer / Senior Engineer
 9d ago
 
 Job Seekers
 Find Jobs
 Browse Jobs
-© Copyright 2026 Career Times Online Limited. All rights reserved.
+© Copyright 2026 Sample Job Board Limited. All rights reserved.
 """
 
-INDEED_LIKE_PASTE = """
+FOOTER_HEAVY_PASTE = """
 Skip to main content
 Keyword: all jobs
 customer service jobs in Hong Kong
@@ -151,22 +151,22 @@ Return to Search Result
 
 Career advice
 Browse jobs
-© 2026 Indeed
+© 2026 Sample Job Search
 """
 
 
-def test_extract_description_block_strips_ctgoodjobs_style_noise():
-    result = extract_description_block(CTGOODJOBS_LIKE_PASTE)
+def test_extract_description_block_strips_nav_heavy_noise():
+    result = extract_description_block(NAV_HEAVY_PASTE)
     matched = match_skills(result, SKILLS)
     assert "Communication" in matched
     assert "Troubleshooting" in matched
     # related-listing company names should not leak into the extracted block
-    assert "Otis Elevator" not in result
+    assert "Northline Elevator" not in result
     assert "Similar Jobs" not in result
 
 
-def test_extract_description_block_strips_indeed_style_noise():
-    result = extract_description_block(INDEED_LIKE_PASTE)
+def test_extract_description_block_strips_footer_heavy_noise():
+    result = extract_description_block(FOOTER_HEAVY_PASTE)
     matched = match_skills(result, SKILLS)
     assert "Complaint Handling" in matched
     assert "Ticketing System" in matched

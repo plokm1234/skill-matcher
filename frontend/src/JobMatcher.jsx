@@ -55,7 +55,7 @@ async function getJson(url, opts) {
 // Small outline icons for the sample page's meta rows — plain inline SVG,
 // no icon library needed for four shapes.
 const ICON_PROPS = {
-  className: "jobsdb-icon",
+  className: "sample-ad-icon",
   viewBox: "0 0 24 24",
   fill: "none",
   stroke: "currentColor",
@@ -93,7 +93,7 @@ const IconSalary = () => (
 );
 
 const IconInfo = () => (
-  <svg {...ICON_PROPS} className="jobsdb-icon jobsdb-icon-info">
+  <svg {...ICON_PROPS} className="sample-ad-icon sample-ad-icon-info">
     <circle cx="12" cy="12" r="10" />
     <line x1="12" y1="16" x2="12" y2="11" />
     <circle cx="12" cy="8" r="0.5" fill="currentColor" stroke="none" />
@@ -117,11 +117,11 @@ const IconUsers = () => (
   </svg>
 );
 
-// Sample page header + description — written in the same shape as a real
-// JobsDB posting (title / company / location / category / employment type /
-// salary / posted-age / application-volume badge, then a "Jobs Description"
-// section, then a "Company profile" section), but every value here is
-// invented, not copied from any real ad or company.
+// Sample page header + description — written in the same shape a real
+// job board posting uses (title / company / location / category /
+// employment type / salary / posted-age / application-volume badge, then
+// a "Jobs Description" section, then a "Company profile" section), but
+// every value here is invented, not copied from any real ad or company.
 const SAMPLE_AD = {
   title: "IT Support Officer (Fresh Graduates Welcome)",
   company: "Demo Corp Limited",
@@ -382,53 +382,53 @@ export default function JobMatcher() {
         呢頁仿造真實job board嘅版面,教你貼job description時應該揀邊一部分。
       </p>
 
-      <div className="jobsdb-mock">
-        <div className="jobsdb-header">
-          <h2 className="jobsdb-job-title">{SAMPLE_AD.title}</h2>
-          <div className="jobsdb-company-row">
-            <span className="jobsdb-company">
+      <div className="sample-ad-mock">
+        <div className="sample-ad-header">
+          <h2 className="sample-ad-job-title">{SAMPLE_AD.title}</h2>
+          <div className="sample-ad-company-row">
+            <span className="sample-ad-company">
               {SAMPLE_AD.company}
-              <span className="jobsdb-verified" title="Verified">✓</span>
+              <span className="sample-ad-verified" title="Verified">✓</span>
             </span>
-            <span className="jobsdb-view-all">View all jobs</span>
+            <span className="sample-ad-view-all">View all jobs</span>
           </div>
-          <div className="jobsdb-meta-list">
-            <div className="jobsdb-meta-row">
+          <div className="sample-ad-meta-list">
+            <div className="sample-ad-meta-row">
               <IconPin />
               <span>{SAMPLE_AD.location}</span>
             </div>
-            <div className="jobsdb-meta-row">
+            <div className="sample-ad-meta-row">
               <IconBriefcase />
               <span>{SAMPLE_AD.category}</span>
             </div>
-            <div className="jobsdb-meta-row">
+            <div className="sample-ad-meta-row">
               <IconClock />
               <span>{SAMPLE_AD.employmentType}</span>
             </div>
-            <div className="jobsdb-meta-row">
+            <div className="sample-ad-meta-row">
               <IconSalary />
               <span>{SAMPLE_AD.salary}</span>
               <IconInfo />
             </div>
           </div>
-          <div className="jobsdb-posted-row">
+          <div className="sample-ad-posted-row">
             <span>{SAMPLE_AD.postedAge}</span>
-            <span className="jobsdb-dot">·</span>
-            <span className="jobsdb-volume">{SAMPLE_AD.volumeBadge}</span>
+            <span className="sample-ad-dot">·</span>
+            <span className="sample-ad-volume">{SAMPLE_AD.volumeBadge}</span>
           </div>
         </div>
 
 
-        <div className="jobsdb-copy-target">
+        <div className="sample-ad-copy-target">
           <span className="copy-badge">👇 貼呢part</span>
-          <p className="jobsdb-overview">{SAMPLE_AD.overview}</p>
-          <p className="jobsdb-subhead">Responsibilities</p>
+          <p className="sample-ad-overview">{SAMPLE_AD.overview}</p>
+          <p className="sample-ad-subhead">Responsibilities</p>
           <ul>
             {SAMPLE_AD.responsibilities.map((line) => (
               <li key={line}>{line}</li>
             ))}
           </ul>
-          <p className="jobsdb-subhead">Requirements</p>
+          <p className="sample-ad-subhead">Requirements</p>
           <ul>
             {SAMPLE_AD.requirements.map((line) => (
               <li key={line}>{line}</li>
@@ -436,23 +436,23 @@ export default function JobMatcher() {
           </ul>
         </div>
 
-        <div className="jobsdb-company-profile">
-          <h4 className="jobsdb-section-label">Company profile</h4>
-          <div className="jobsdb-profile-name-row">
+        <div className="sample-ad-company-profile">
+          <h4 className="sample-ad-section-label">Company profile</h4>
+          <div className="sample-ad-profile-name-row">
             <span>{SAMPLE_AD.company}</span>
-            <span className="jobsdb-verified" title="Verified">✓</span>
+            <span className="sample-ad-verified" title="Verified">✓</span>
           </div>
-          <div className="jobsdb-meta-list">
-            <div className="jobsdb-meta-row">
+          <div className="sample-ad-meta-list">
+            <div className="sample-ad-meta-row">
               <IconBuilding />
               <span>{SAMPLE_AD.industry}</span>
             </div>
-            <div className="jobsdb-meta-row">
+            <div className="sample-ad-meta-row">
               <IconUsers />
               <span>{SAMPLE_AD.employeeCount}</span>
             </div>
           </div>
-          <p className="jobsdb-profile-blurb">{SAMPLE_AD.companyBlurb}</p>
+          <p className="sample-ad-profile-blurb">{SAMPLE_AD.companyBlurb}</p>
         </div>
       </div>
       </div>
