@@ -43,8 +43,10 @@ def get_skill_categories() -> dict[str, str]:
         return dict(cur.fetchall())
 
 
-def get_title_skills(title_name: str) -> tuple[list[str], str]:
-    """Returns (skill names for this title, its track)."""
+def get_title_skills(title_name: str) -> tuple[list[str], list[str], str]:
+    """Returns (core skill names, nice-to-have skill names, track) for this
+    title. Split at the query level (not filtered in Python afterward) so
+    callers never have to know is_core lives on the junction table."""
     with get_connection() as conn, conn.cursor() as cur:
         cur.execute("SELECT track FROM job_titles WHERE title_name = %s", (title_name,))
         row = cur.fetchone()
@@ -54,15 +56,18 @@ def get_title_skills(title_name: str) -> tuple[list[str], str]:
 
         cur.execute(
             """
-            SELECT s.name FROM job_title_skills jts
+            SELECT s.name, jts.is_core FROM job_title_skills jts
             JOIN skills s ON s.skill_id = jts.skill_id
             JOIN job_titles t ON t.title_id = jts.title_id
             WHERE t.title_name = %s
             """,
             (title_name,),
         )
-        skills = [r[0] for r in cur.fetchall()]
-        return skills, track
+        core_skills = []
+        nice_skills = []
+        for name, is_core in cur.fetchall():
+            (core_skills if is_core else nice_skills).append(name)
+        return core_skills, nice_skills, track
 
 
 def get_job_titles() -> list[dict]:

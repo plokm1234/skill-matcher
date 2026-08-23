@@ -282,6 +282,27 @@ textarea {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  margin-bottom: 4px;
+}
+
+/* Explicit "核心 Skills" / "Nice-to-have Skills" sub-headers on the left
+   column, so the tier split is stated in words, not left for the reader
+   to infer from color alone. */
+.tier-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #999;
+  margin: 12px 0 6px;
+}
+
+.tier-label:first-of-type {
+  margin-top: 0;
+}
+
+.tier-label-core {
+  color: #1f6fa8;
 }
 
 .compare-col .skill-chip {
@@ -291,6 +312,32 @@ textarea {
   border: 1px solid #e0e0e0;
   background: #f7f9fa;
   white-space: nowrap;
+}
+
+/* Left column only — core skills are solid/filled, nice-to-have are
+   dashed/pale, so the two tiers read differently even without the
+   header text. */
+.compare-col .skill-chip.tier-core {
+  background: #1f6fa8;
+  color: #fff;
+  border-color: #1f6fa8;
+  font-weight: 600;
+}
+
+.compare-col .skill-chip.tier-nice {
+  background: #f2f2f2;
+  color: #888;
+  border-color: #ddd;
+  border-style: dashed;
+}
+
+/* "Other" required skills — ones the pasted job ad asks for that aren't
+   part of the selected title's skill set at all (core or nice-to-have),
+   e.g. Python turning up while IT Support is selected. Same grey as the
+   nice-to-have label but italic, so it still reads as a third, distinct
+   bucket rather than a mislabelled nice-to-have. */
+.tier-label-other {
+  font-style: italic;
 }
 
 .compare-col .pending {

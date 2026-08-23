@@ -53,19 +53,42 @@ def build_suggestion(match_pct: float, same_track: bool) -> str:
     return "缺口較大,建議先加強缺少嘅核心skill"
 
 
+# How much core-skill coverage vs nice-to-have coverage counts toward
+# match_pct. Chosen so the two boundary cases line up exactly with
+# build_suggestion's existing thresholds: 100% core coverage alone lands at
+# CORE_WEIGHT*100 = 80, which is exactly the ">= 80 → 可以申請" cutoff — a
+# candidate who has every core skill for the role should clear that bar
+# regardless of how many nice-to-haves they're missing. 100% nice-to-have
+# coverage alone (no core skills at all) lands at NICE_WEIGHT*100 = 20,
+# staying well under the "缺口較大" (< 50) cutoff — nice-to-haves can't
+# paper over a missing core skill set.
+CORE_WEIGHT = 0.8
+NICE_WEIGHT = 0.2
+
+
 def compute_match(
     required_skills: list[str],
     required_categories: list[str],
-    user_skills: list[str],
+    core_skills: list[str],
+    nice_skills: list[str],
     user_track: str,
 ) -> MatchResult:
     required_set = set(required_skills)
-    user_set = set(user_skills)
+    core_set = set(core_skills)
+    nice_set = set(nice_skills)
+    user_set = core_set | nice_set
 
     matched = sorted(required_set & user_set)
     gap = sorted(required_set - user_set)
 
-    match_pct = round(len(matched) / len(required_set) * 100, 1) if required_set else 0.0
+    # Coverage is "of the skills this title actually calls for at this
+    # tier, how many does the job ad also ask for" — not the reverse — so
+    # an empty tier (no core skills defined, or none of the nice-to-haves
+    # apply) counts as fully covered rather than dividing by zero.
+    core_coverage = len(core_set & required_set) / len(core_set) if core_set else 1.0
+    nice_coverage = len(nice_set & required_set) / len(nice_set) if nice_set else 1.0
+
+    match_pct = round((core_coverage * CORE_WEIGHT + nice_coverage * NICE_WEIGHT) * 100, 1)
     same_track = is_same_track(required_categories, user_track)
 
     suggestion = build_suggestion(match_pct, same_track)

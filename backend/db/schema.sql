@@ -38,6 +38,14 @@ CREATE TABLE job_titles (
 CREATE TABLE job_title_skills (          -- junction: job_titles <-> skills
     title_id INTEGER REFERENCES job_titles(title_id),
     skill_id INTEGER REFERENCES skills(skill_id),
+    is_core  BOOLEAN NOT NULL DEFAULT TRUE,  -- core vs nice-to-have for THIS
+                                              -- title — the same skill can be
+                                              -- core for one title and
+                                              -- nice-to-have for another, so
+                                              -- this lives on the junction,
+                                              -- not on skills itself. Drives
+                                              -- the weighted match_pct in
+                                              -- suggestion.py.
     PRIMARY KEY (title_id, skill_id)
 );
 

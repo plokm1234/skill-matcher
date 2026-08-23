@@ -36,12 +36,15 @@ def title_skills(title: str):
     """Skills implied by a job title — shown under the Title row so the
     user sees what they're being compared with before hitting Extract.
     Query param (not a path param) because title_name can contain '/'
-    (e.g. '行政主任/主管')."""
+    (e.g. '行政主任/主管'). Core and nice-to-have are split here — the
+    front end labels each one explicitly (and uses the same split to tag
+    whichever of the pasted job ad's required skills fall into this
+    title's own skill set)."""
     try:
-        skills, track = database.get_title_skills(title)
+        core_skills, nice_skills, track = database.get_title_skills(title)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
-    return {"skills": skills, "track": track}
+    return {"core_skills": core_skills, "nice_skills": nice_skills, "track": track}
 
 
 @app.post("/required-skills")
@@ -56,7 +59,7 @@ def required_skills(req: RequiredSkillsRequest):
 @app.post("/extract", response_model=ExtractResponse)
 def extract(req: ExtractRequest):
     try:
-        user_skills, user_track = database.get_title_skills(req.title)
+        core_skills, nice_skills, user_track = database.get_title_skills(req.title)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -67,7 +70,7 @@ def extract(req: ExtractRequest):
     required = match_skills(cleaned, skills_dict)
     required_categories = [categories[s] for s in required if s in categories]
 
-    result = compute_match(required, required_categories, user_skills, user_track)
+    result = compute_match(required, required_categories, core_skills, nice_skills, user_track)
 
     return ExtractResponse(
         match_pct=result.match_pct,

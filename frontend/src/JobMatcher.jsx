@@ -150,7 +150,8 @@ export default function JobMatcher() {
   const [page, setPage] = useState("main"); // "main" | "sample"
 
   const [title, setTitle] = useState(TITLES[0]);
-  const [titleSkills, setTitleSkills] = useState([]);
+  const [coreSkills, setCoreSkills] = useState([]);
+  const [niceSkills, setNiceSkills] = useState([]);
 
   const [jobOption, setJobOption] = useState(null);
   const [jobText, setJobText] = useState("");
@@ -164,11 +165,30 @@ export default function JobMatcher() {
   const [error, setError] = useState(null);
 
   // Title skills preview — fetched whenever the selected title changes.
+  // Core/nice-to-have are kept separate (not flattened into one list) so
+  // both this column and the required-skills column can label each chip
+  // explicitly instead of leaving the split implicit in the match%.
   useEffect(() => {
     getJson(`${API_BASE}/title-skills?title=${encodeURIComponent(title)}`)
-      .then((d) => setTitleSkills(d.skills))
-      .catch(() => setTitleSkills([]));
+      .then((d) => {
+        setCoreSkills(d.core_skills);
+        setNiceSkills(d.nice_skills);
+      })
+      .catch(() => {
+        setCoreSkills([]);
+        setNiceSkills([]);
+      });
   }, [title]);
+
+  // A required skill is only "core" or "nice-to-have" relative to the
+  // selected title's own skill set — one that falls outside both (e.g. a
+  // Python job ad pasted while IT Support is selected) gets no tier tag,
+  // it's just cross-track gap material.
+  function tierOf(skill) {
+    if (coreSkills.includes(skill)) return "core";
+    if (niceSkills.includes(skill)) return "nice";
+    return null;
+  }
 
   async function previewRequiredSkills(text) {
     if (!text.trim()) {
@@ -238,6 +258,38 @@ export default function JobMatcher() {
     return () => clearInterval(timer);
   }, [result]);
 
+  // Grouped for rendering — just core vs everything else (nice-to-have
+  // and cross-track skills merged into one "其他" bucket for display; the
+  // nice-to-have/other distinction still matters for match_pct on the
+  // backend, it's just not worth a third visual group here). Each entry
+  // keeps its original index (origIndex) so the reveal animation still
+  // ticks through skills in detection order even though they're laid out
+  // in two groups rather than one flat list. This runs as soon as
+  // requiredSkills is populated (right after a demo is picked or pasted
+  // text is blurred), not gated on Extract.
+  const requiredWithTier = requiredSkills.map((skill, origIndex) => ({
+    skill,
+    origIndex,
+    tier: tierOf(skill),
+  }));
+  const coreRequired = requiredWithTier.filter((r) => r.tier === "core");
+  const otherRequired = requiredWithTier.filter((r) => r.tier !== "core");
+
+  function renderRequiredChip({ skill, origIndex }) {
+    if (!result) {
+      return <span key={skill} className="skill-chip pending">{skill}</span>;
+    }
+    const revealed = origIndex < revealIndex;
+    const isMatch = result.matched.includes(skill);
+    const cls = revealed ? `revealed ${isMatch ? "is-match" : "is-gap"}` : "pending";
+    return (
+      <span key={skill} className={`skill-chip ${cls}`}>
+        {skill}
+        {revealed && (isMatch ? " ✓" : " ✕")}
+      </span>
+    );
+  }
+
   return (
     <div className="matcher">
       {/* Sheet "3" of the 4-layer fan — a real full-size rotated sheet,
@@ -268,7 +320,7 @@ export default function JobMatcher() {
       </p>
 
       <div className="field">
-        <label>職位 Title</label>
+        <label>你的職位 Title</label>
         <div className="chip-row title-row">
           <button
             className="chip chip-disabled"
@@ -292,7 +344,7 @@ export default function JobMatcher() {
       </div>
 
       <div className="field">
-        <label>Job Description</label>
+        <label>目標職位 Job Description</label>
         <div className="chip-row job-row">
           {JOB_OPTIONS.map((opt) => (
             <button
@@ -329,37 +381,45 @@ export default function JobMatcher() {
 
       {error && <p className="error">{error}</p>}
 
-      {(titleSkills.length > 0 || requiredSkills.length > 0) && (
+      {(coreSkills.length > 0 || niceSkills.length > 0 || requiredSkills.length > 0) && (
         <div className="compare">
           <div className="compare-col">
             <h3>你嘅Skills</h3>
-            <div className="chip-list">
-              {titleSkills.map((s) => (
-                <span key={s} className="skill-chip">{s}</span>
-              ))}
-            </div>
+            {coreSkills.length > 0 && (
+              <>
+                <p className="tier-label tier-label-core">核心 Skills</p>
+                <div className="chip-list">
+                  {coreSkills.map((s) => (
+                    <span key={s} className="skill-chip tier-core">{s}</span>
+                  ))}
+                </div>
+              </>
+            )}
+            {niceSkills.length > 0 && (
+              <>
+                <p className="tier-label tier-label-other">其他 Skills</p>
+                <div className="chip-list">
+                  {niceSkills.map((s) => (
+                    <span key={s} className="skill-chip tier-nice">{s}</span>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
           <div className="compare-col">
             <h3>呢份Job要求嘅Skills</h3>
-            <div className="chip-list">
-              {requiredSkills.map((skill, i) => {
-                // Before Extract runs, result is null and every chip just
-                // sits in the plain "pending" state — Extract's only job
-                // is to flip this classification on, one chip at a time.
-                if (!result) {
-                  return <span key={skill} className="skill-chip pending">{skill}</span>;
-                }
-                const revealed = i < revealIndex;
-                const isMatch = result.matched.includes(skill);
-                const cls = revealed ? `revealed ${isMatch ? "is-match" : "is-gap"}` : "pending";
-                return (
-                  <span key={skill} className={`skill-chip ${cls}`}>
-                    {skill}
-                    {revealed && (isMatch ? " ✓" : " ✕")}
-                  </span>
-                );
-              })}
-            </div>
+            {coreRequired.length > 0 && (
+              <>
+                <p className="tier-label tier-label-core">核心 Skills</p>
+                <div className="chip-list">{coreRequired.map(renderRequiredChip)}</div>
+              </>
+            )}
+            {otherRequired.length > 0 && (
+              <>
+                <p className="tier-label tier-label-other">其他 Skills</p>
+                <div className="chip-list">{otherRequired.map(renderRequiredChip)}</div>
+              </>
+            )}
           </div>
         </div>
       )}
