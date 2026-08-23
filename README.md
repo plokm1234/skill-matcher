@@ -72,11 +72,16 @@ erDiagram
     JOB_TITLE_SKILLS {
         int title_id FK
         int skill_id FK
+        bool is_core
     }
 ```
 
 `skills` is the hub between job postings and job titles — each many-to-many
 relationship is mediated by its own junction table, not a shared column.
+`is_core` lives on `JOB_TITLE_SKILLS` rather than on `skills` itself
+because the same skill can be core for one title and nice-to-have for
+another — see `backend/app/suggestion.py` for how that split drives the
+weighted match score.
 
 ## What this demonstrates
 
